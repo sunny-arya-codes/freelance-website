@@ -24,10 +24,8 @@ const Navigation = () => {
 
   const navItems = [
     { label: 'About', id: 'about' },
-    { label: 'Experience', id: 'experience' },
-    { label: 'Projects', id: 'projects' },
     { label: 'Skills', id: 'skills' },
-    { label: 'Education', id: 'education' },
+    { label: 'Projects', id: 'projects' },
     { label: 'Contact', id: 'contact' },
   ];
 
@@ -46,7 +44,7 @@ const Navigation = () => {
             onClick={() => scrollToSection('hero')}
             className="text-xl font-bold gradient-text hover:scale-105 transition-transform"
           >
-            SK
+            AC
           </button>
 
           {/* Desktop Navigation */}
