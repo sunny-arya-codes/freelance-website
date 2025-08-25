@@ -25,9 +25,8 @@ const Navigation = () => {
   const navItems = [
     { label: 'About', id: 'about' },
     { label: 'Skills', id: 'skills' },
-    { label: 'Experience', id: 'experience' },
     { label: 'Projects', id: 'projects' },
-    { label: 'Education', id: 'education' },
+    { label: 'Career', id: 'timeline' },
     { label: 'Contact', id: 'contact' },
   ];
 
@@ -60,6 +59,16 @@ const Navigation = () => {
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-primary group-hover:w-full transition-all duration-300"></span>
               </button>
             ))}
+            
+            {/* Resume Button */}
+            <a
+              href="/resume.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all duration-300 hover:scale-105 font-medium"
+            >
+              Resume
+            </a>
           </div>
 
           {/* Mobile Menu Button */}
@@ -84,6 +93,16 @@ const Navigation = () => {
                   {item.label}
                 </button>
               ))}
+              
+              {/* Mobile Resume Button */}
+              <a
+                href="/resume.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full text-center px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all duration-300 font-medium mt-4"
+              >
+                Resume
+              </a>
             </div>
           </div>
         )}

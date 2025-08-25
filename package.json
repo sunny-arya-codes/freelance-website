@@ -1,7 +1,10 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "sunni-kumar-portfolio",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Personal portfolio website for Sunni Kumar - Software Engineer at Freshmenu",
+  "author": "Sunni Kumar",
+  "homepage": "https://sunni-kumar.dev",
   "type": "module",
   "scripts": {
     "dev": "vite",
