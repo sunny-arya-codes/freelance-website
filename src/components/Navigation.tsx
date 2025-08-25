@@ -25,17 +25,18 @@ const Navigation = () => {
   const navItems = [
     { label: 'About', id: 'about' },
     { label: 'Skills', id: 'skills' },
+    { label: 'Experience', id: 'experience' },
     { label: 'Projects', id: 'projects' },
+    { label: 'Education', id: 'education' },
     { label: 'Contact', id: 'contact' },
   ];
 
   return (
-    <nav 
-      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'glass-card backdrop-blur-md border-b border-glass-border' 
+    <nav
+      className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled
+          ? 'glass-card backdrop-blur-md border-b border-glass-border'
           : 'bg-transparent'
-      }`}
+        }`}
     >
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-16">
@@ -44,7 +45,7 @@ const Navigation = () => {
             onClick={() => scrollToSection('hero')}
             className="text-xl font-bold gradient-text hover:scale-105 transition-transform"
           >
-            AC
+            SK
           </button>
 
           {/* Desktop Navigation */}

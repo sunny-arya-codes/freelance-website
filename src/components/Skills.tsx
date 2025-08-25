@@ -1,50 +1,87 @@
-import { 
-  Code2, 
-  Database, 
-  Globe, 
-  Server, 
-  Smartphone, 
+import {
+  Code2,
+  Database,
+  Globe,
+  Server,
+  Smartphone,
   Cloud,
   GitBranch,
-  Palette
+  Palette,
+  Cpu
 } from 'lucide-react';
 
 const Skills = () => {
   const skillCategories = [
     {
-      icon: <Code2 size={32} />,
-      title: 'Frontend Development',
-      skills: ['React', 'TypeScript', 'Next.js', 'Tailwind CSS', 'Vue.js'],
-      color: 'from-blue-500 to-cyan-500'
+      icon: <Cpu size={32} />,
+      title: 'AI/ML & Data Science',
+      skills: [
+        'PyTorch & TensorFlow',
+        'Scikit-learn & OpenCV',
+        'Pandas & NumPy',
+        'Machine Learning',
+        'Deep Learning & CV'
+      ],
+      color: 'from-yellow-500 to-orange-500'
     },
     {
       icon: <Server size={32} />,
       title: 'Backend Development',
-      skills: ['Node.js', 'Python', 'Express', 'FastAPI', 'GraphQL'],
+      skills: [
+        'Python & Java',
+        'Node.js & Express',
+        'Spring Boot & FastAPI',
+        'REST APIs',
+        'Microservices'
+      ],
       color: 'from-green-500 to-emerald-500'
     },
     {
       icon: <Database size={32} />,
       title: 'Database & Storage',
-      skills: ['PostgreSQL', 'MongoDB', 'Redis', 'Supabase', 'Firebase'],
+      skills: [
+        'PostgreSQL',
+        'MongoDB',
+        'MySQL',
+        'Redis',
+        'Firebase'
+      ],
       color: 'from-purple-500 to-violet-500'
     },
     {
       icon: <Cloud size={32} />,
       title: 'Cloud & DevOps',
-      skills: ['AWS', 'Docker', 'Kubernetes', 'CI/CD', 'Vercel'],
+      skills: [
+        'AWS',
+        'Docker',
+        'Kubernetes',
+        'CI/CD Pipelines',
+        'Vercel'
+      ],
       color: 'from-orange-500 to-red-500'
     },
     {
-      icon: <Smartphone size={32} />,
-      title: 'Mobile Development',
-      skills: ['React Native', 'Flutter', 'iOS', 'Android', 'PWA'],
-      color: 'from-pink-500 to-rose-500'
+      icon: <Code2 size={32} />,
+      title: 'Frontend Development',
+      skills: [
+        'React',
+        'Next.js',
+        'TypeScript',
+        'Angular',
+        'Tailwind CSS'
+      ],
+      color: 'from-blue-500 to-cyan-500'
     },
     {
       icon: <GitBranch size={32} />,
       title: 'Tools & Workflow',
-      skills: ['Git', 'VS Code', 'Figma', 'Jira', 'Slack'],
+      skills: [
+        'Git',
+        'Jupyter Notebook',
+        'VS Code',
+        'Figma',
+        'Agile/Scrum'
+      ],
       color: 'from-indigo-500 to-blue-500'
     }
   ];
@@ -93,9 +130,8 @@ const Skills = () => {
                       {[...Array(5)].map((_, i) => (
                         <div
                           key={i}
-                          className={`w-2 h-2 rounded-full ${
-                            i < 4 ? 'bg-primary' : 'bg-muted'
-                          } group-hover:animate-pulse`}
+                          className={`w-2 h-2 rounded-full ${i < 4 ? 'bg-primary' : 'bg-muted'
+                            } group-hover:animate-pulse`}
                           style={{ animationDelay: `${i * 0.1}s` }}
                         ></div>
                       ))}
@@ -113,8 +149,16 @@ const Skills = () => {
             </h3>
             <div className="flex flex-wrap justify-center gap-3">
               {[
-                'REST APIs', 'GraphQL', 'Microservices', 'WebSockets', 'Testing (Jest, Cypress)',
-                'Agile/Scrum', 'UI/UX Design', 'Performance Optimization', 'Security Best Practices'
+                'GraphQL',
+                'WebSockets',
+                'Testing (Jest, Cypress)',
+                'UI/UX Design',
+                'Performance Optimization',
+                'Security Best Practices',
+                'Supabase',
+                'Vue.js',
+                'Jira',
+                'Slack'
               ].map((tech) => (
                 <span
                   key={tech}
@@ -125,6 +169,7 @@ const Skills = () => {
               ))}
             </div>
           </div>
+
         </div>
       </div>
     </section>

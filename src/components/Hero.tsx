@@ -9,8 +9,8 @@ const Hero = () => {
   };
 
   return (
-    <section 
-      id="hero" 
+    <section
+      id="hero"
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
       style={{
         backgroundImage: `url(${heroBackground})`,
@@ -21,7 +21,7 @@ const Hero = () => {
     >
       {/* Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/80"></div>
-      
+
       {/* Animated particles */}
       <div className="absolute inset-0">
         {[...Array(6)].map((_, i) => (
@@ -42,25 +42,27 @@ const Hero = () => {
       <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
         <div className="fade-in">
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            <span className="gradient-text">Alex Chen</span>
+            <span className="gradient-text">Sunni Kumar</span>
           </h1>
           <h2 className="text-2xl md:text-3xl font-medium mb-4 text-muted-foreground">
-            Full Stack Engineer
+            Software Engineer • AI/ML Specialist
           </h2>
           <p className="text-lg md:text-xl mb-8 text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Building innovative digital experiences with modern technologies. 
-            Passionate about clean code, user experience, and cutting-edge solutions.
+            I craft intelligent and scalable digital solutions by combining modern software engineering
+            with Artificial Intelligence and Machine Learning. Passionate about building seamless user
+            experiences, writing clean and efficient code, and leveraging cutting-edge technologies
+            to solve real-world problems.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
               className="bg-primary hover:bg-primary-glow text-primary-foreground font-medium px-8 py-3 glow-hover"
             >
               View My Work
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="lg"
               onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
               className="border-primary text-primary hover:bg-primary/10 px-8 py-3"

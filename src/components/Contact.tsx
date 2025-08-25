@@ -43,19 +43,19 @@ const Contact = () => {
     {
       icon: <Mail size={20} />,
       label: 'Email',
-      value: 'alex.chen.dev@email.com',
-      href: 'mailto:alex.chen.dev@email.com'
+      value: 'sunnikumar.arya@gmail.com',
+      href: 'mailto:sunnikumar.arya@gmail.com'
     },
-    {
-      icon: <Phone size={20} />,
-      label: 'Phone',
-      value: '+1 (555) 123-4567',
-      href: 'tel:+15551234567'
-    },
+    // {
+    //   icon: <Phone size={20} />,
+    //   label: 'Phone',
+    //   value: '+91 6394540805',
+    //   href: 'tel:+916394540805'
+    // },
     {
       icon: <MapPin size={20} />,
       label: 'Location',
-      value: 'San Francisco, CA',
+      value: 'Bengaluru, Karnataka, India',
       href: '#'
     }
   ];
@@ -64,19 +64,19 @@ const Contact = () => {
     {
       icon: <Github size={24} />,
       label: 'GitHub',
-      href: 'https://github.com',
+      href: 'https://github.com/sunny-arya-codes',
       color: 'hover:text-gray-400'
     },
     {
       icon: <Linkedin size={24} />,
       label: 'LinkedIn',
-      href: 'https://linkedin.com',
+      href: 'https://linkedin.com/in/sunni-kumar',
       color: 'hover:text-blue-400'
     },
     {
       icon: <Twitter size={24} />,
       label: 'Twitter',
-      href: 'https://twitter.com',
+      href: 'https://twitter.com/sunni_kumar',
       color: 'hover:text-sky-400'
     }
   ];

@@ -23,10 +23,10 @@ const Footer = () => {
           {/* Main content */}
           <div className="mb-8">
             <h3 className="text-2xl font-bold gradient-text mb-4">
-              Alex Chen
+              Sunni Kumar
             </h3>
             <p className="text-muted-foreground max-w-md mx-auto">
-              Full Stack Engineer passionate about creating innovative digital experiences.
+              Software Engineer • AI/ML Specialist
             </p>
           </div>
 
@@ -35,7 +35,9 @@ const Footer = () => {
             {[
               { label: 'About', id: 'about' },
               { label: 'Skills', id: 'skills' },
+              { label: 'Experience', id: 'experience' },
               { label: 'Projects', id: 'projects' },
+              { label: 'Education', id: 'education' },
               { label: 'Contact', id: 'contact' },
             ].map((item) => (
               <button
@@ -54,12 +56,12 @@ const Footer = () => {
           {/* Copyright */}
           <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6 text-sm text-muted-foreground">
             <div className="flex items-center space-x-2">
-              <span>© {currentYear} Alex Chen. All rights reserved.</span>
+              <span>© {currentYear} Sunni Kumar. All rights reserved.</span>
             </div>
             <div className="flex items-center space-x-2">
               <span>Made with</span>
               <Heart size={16} className="text-primary animate-pulse" fill="currentColor" />
-              <span>in San Francisco</span>
+              <span>in India</span>
             </div>
           </div>
 

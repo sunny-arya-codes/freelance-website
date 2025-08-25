@@ -1,4 +1,4 @@
-import profilePhoto from '@/assets/profile-photo.jpg';
+import profilePhoto from '@/assets/profile-photo.png';
 
 const About = () => {
   return (
@@ -13,7 +13,7 @@ const About = () => {
             {/* Profile Image */}
             <div className="flex justify-center lg:justify-start">
               <div className="relative group">
-                <div className="w-80 h-80 rounded-3xl overflow-hidden glass-card p-2 glow-hover">
+                <div className="w-[80%] rounded-3xl overflow-hidden glass-card p-2 glow-hover">
                   <img
                     src={profilePhoto}
                     alt="Alex Chen - Full Stack Engineer"
@@ -28,39 +28,35 @@ const About = () => {
             {/* About Content */}
             <div className="space-y-6 slide-up">
               <h3 className="text-2xl font-semibold text-primary mb-4">
-                Building the Future, One Line at a Time
+                Engineering Intelligent Applications, End to End
               </h3>
               
               <div className="space-y-4 text-muted-foreground leading-relaxed">
                 <p>
-                  With over 5 years of experience in full-stack development, I specialize in creating 
-                  scalable web applications using modern technologies like React, Node.js, and cloud platforms.
+                  With over 2 years of experience in software engineering, I specialize in building and scaling data-intensive applications and deploying AI/ML solutions.
                 </p>
                 
                 <p>
-                  My passion lies in transforming complex problems into elegant, user-friendly solutions. 
-                  I believe in writing clean, maintainable code and staying updated with the latest 
-                  industry trends and best practices.
+                  My passion lies in bridging the gap between data science and full-stack development, transforming complex challenges into intelligent, user-friendly solutions. I believe in writing clean, maintainable code, following best practices, and staying updated with the latest advancements in AI, cloud, and modern web technologies.
                 </p>
                 
                 <p>
-                  When I'm not coding, you'll find me exploring new technologies, contributing to open-source 
-                  projects, or mentoring aspiring developers in the community.
+                  When I’m not coding, you’ll find me experimenting with new ML architectures, contributing to open-source projects, or mentoring aspiring developers in the community.
                 </p>
               </div>
 
               {/* Key Stats */}
               <div className="grid grid-cols-2 md:grid-cols-3 gap-6 pt-8">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-primary mb-2">5+</div>
+                  <div className="text-3xl font-bold text-primary mb-2">2+</div>
                   <div className="text-sm text-muted-foreground">Years Experience</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-primary mb-2">50+</div>
+                  <div className="text-3xl font-bold text-primary mb-2">15+</div>
                   <div className="text-sm text-muted-foreground">Projects Completed</div>
                 </div>
                 <div className="text-center md:col-span-1 col-span-2">
-                  <div className="text-3xl font-bold text-primary mb-2">15+</div>
+                  <div className="text-3xl font-bold text-primary mb-2">20+</div>
                   <div className="text-sm text-muted-foreground">Technologies Mastered</div>
                 </div>
               </div>
