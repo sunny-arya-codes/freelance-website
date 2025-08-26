@@ -62,7 +62,7 @@ const Navigation = () => {
             
             {/* Resume Button */}
             <a
-              href="/resume.pdf"
+              href="/sunni-kumar-resume.pdf"
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all duration-300 hover:scale-105 font-medium"
