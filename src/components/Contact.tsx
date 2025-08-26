@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import emailjs from '@emailjs/browser';
+import { EMAIL_CONFIG, FALLBACK_EMAIL, EMAIL_REGEX } from '@/lib/email-config';
 
 const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -16,27 +18,125 @@ const Contact = () => {
     message: ''
   });
 
+  const [errors, setErrors] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+
+
+  const validateForm = () => {
+    const newErrors = {
+      name: '',
+      email: '',
+      subject: '',
+      message: ''
+    };
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!EMAIL_REGEX.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    if (!formData.subject.trim()) {
+      newErrors.subject = 'Subject is required';
+    }
+
+    if (!formData.message.trim()) {
+      newErrors.message = 'Message is required';
+    } else if (formData.message.trim().length < 10) {
+      newErrors.message = 'Message must be at least 10 characters long';
+    }
+
+    setErrors(newErrors);
+    return Object.values(newErrors).every(error => error === '');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      toast({
+        title: "Validation Error",
+        description: "Please fix the errors in the form before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    toast({
-      title: "Message sent successfully!",
-      description: "Thank you for reaching out. I'll get back to you soon.",
-    });
-    
-    setFormData({ name: '', email: '', subject: '', message: '' });
-    setIsSubmitting(false);
+    try {
+      // Initialize EmailJS (you only need to do this once in your app)
+      emailjs.init(EMAIL_CONFIG.PUBLIC_KEY);
+
+      // Prepare template parameters
+      const templateParams = {
+        from_name: formData.name,
+        from_email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+        to_name: 'Sunni Kumar',
+        reply_to: formData.email,
+      };
+
+      // Send email using EmailJS
+      await emailjs.send(
+        EMAIL_CONFIG.SERVICE_ID,
+        EMAIL_CONFIG.TEMPLATE_ID,
+        templateParams
+      );
+
+      toast({
+        title: "Message sent successfully!",
+        description: "Thank you for reaching out. I'll get back to you soon.",
+      });
+      
+      setFormData({ name: '', email: '', subject: '', message: '' });
+      setErrors({ name: '', email: '', subject: '', message: '' });
+      
+    } catch (error) {
+      console.error('EmailJS Error:', error);
+      
+      // Fallback to mailto if EmailJS fails
+      const mailtoLink = `mailto:${FALLBACK_EMAIL}?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(
+        `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
+      )}`;
+      
+      window.open(mailtoLink, '_blank');
+      
+      toast({
+        title: "Opening email client",
+        description: "Your default email client will open with the message pre-filled.",
+      });
+      
+      setFormData({ name: '', email: '', subject: '', message: '' });
+      setErrors({ name: '', email: '', subject: '', message: '' });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [name]: value
     }));
+    
+    // Clear error when user starts typing
+    if (errors[name as keyof typeof errors]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
   };
 
   const contactInfo = [
@@ -165,9 +265,14 @@ const Contact = () => {
                       required
                       value={formData.name}
                       onChange={handleChange}
-                      className="bg-input border-border focus:border-primary focus:ring-primary/20"
+                      className={`bg-input border-border focus:border-primary focus:ring-primary/20 ${
+                        errors.name ? 'border-red-500 focus:border-red-500' : ''
+                      }`}
                       placeholder="Your full name"
                     />
+                    {errors.name && (
+                      <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2" htmlFor="email">
@@ -180,9 +285,14 @@ const Contact = () => {
                       required
                       value={formData.email}
                       onChange={handleChange}
-                      className="bg-input border-border focus:border-primary focus:ring-primary/20"
+                      className={`bg-input border-border focus:border-primary focus:ring-primary/20 ${
+                        errors.email ? 'border-red-500 focus:border-red-500' : ''
+                      }`}
                       placeholder="your.email@example.com"
                     />
+                    {errors.email && (
+                      <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                    )}
                   </div>
                 </div>
 
@@ -197,9 +307,14 @@ const Contact = () => {
                     required
                     value={formData.subject}
                     onChange={handleChange}
-                    className="bg-input border-border focus:border-primary focus:ring-primary/20"
+                    className={`bg-input border-border focus:border-primary focus:ring-primary/20 ${
+                      errors.subject ? 'border-red-500 focus:border-red-500' : ''
+                    }`}
                     placeholder="What's this about?"
                   />
+                  {errors.subject && (
+                    <p className="text-red-500 text-sm mt-1">{errors.subject}</p>
+                  )}
                 </div>
 
                 <div>
@@ -213,9 +328,14 @@ const Contact = () => {
                     value={formData.message}
                     onChange={handleChange}
                     rows={6}
-                    className="bg-input border-border focus:border-primary focus:ring-primary/20 resize-none"
+                    className={`bg-input border-border focus:border-primary focus:ring-primary/20 resize-none ${
+                      errors.message ? 'border-red-500 focus:border-red-500' : ''
+                    }`}
                     placeholder="Tell me about your project or just say hello..."
                   />
+                  {errors.message && (
+                    <p className="text-red-500 text-sm mt-1">{errors.message}</p>
+                  )}
                 </div>
 
                 <Button
