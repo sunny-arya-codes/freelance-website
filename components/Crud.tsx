@@ -8,7 +8,20 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-const SortableItem = ({ item, onEdit, onDelete }) => {
+interface CrudItem {
+  _id: string;
+  title?: string;
+  name?: string;
+  [key: string]: any;
+}
+
+interface SortableItemProps {
+  item: CrudItem;
+  onEdit: (item: CrudItem) => void;
+  onDelete: (id: string) => void;
+}
+
+const SortableItem = ({ item, onEdit, onDelete }: SortableItemProps) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item._id });
 
   const style = {
@@ -27,10 +40,14 @@ const SortableItem = ({ item, onEdit, onDelete }) => {
   );
 };
 
-const Crud = ({ collectionName }) => {
+interface CrudProps {
+  collectionName: string;
+}
+
+const Crud = ({ collectionName }: CrudProps) => {
   const token = useAuth();
-  const [items, setItems] = useState([]);
-  const [editingItem, setEditingItem] = useState(null);
+  const [items, setItems] = useState<CrudItem[]>([]);
+  const [editingItem, setEditingItem] = useState<CrudItem | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -47,7 +64,7 @@ const Crud = ({ collectionName }) => {
     }
   }, [token, collectionName]);
 
-  const handleDragEnd = (event) => {
+  const handleDragEnd = (event: any) => {
     const { active, over } = event;
 
     if (active.id !== over.id) {

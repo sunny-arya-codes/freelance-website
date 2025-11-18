@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 
 const AdditionalAdminPage = () => {
   const token = useAuth();
-  const [additional, setAdditional] = useState(null);
+  const [additional, setAdditional] = useState<{ languages: string[]; hobbies: string[] } | null>(null);
 
   useEffect(() => {
     if (token) {
@@ -16,12 +16,14 @@ const AdditionalAdminPage = () => {
     }
   }, [token]);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setAdditional({ ...additional, [name]: value.split(',') });
+    if (additional) {
+      setAdditional({ ...additional, [name]: value.split(',') });
+    }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     await fetch('/api/additional', {
       method: 'PUT',

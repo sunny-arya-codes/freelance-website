@@ -6,8 +6,8 @@ import { useState, useEffect } from 'react';
 
 const ProfileAdminPage = () => {
   const token = useAuth();
-  const [profile, setProfile] = useState(null);
-  const [image, setImage] = useState(null);
+  const [profile, setProfile] = useState<any>(null);
+  const [image, setImage] = useState<File | null>(null);
 
   useEffect(() => {
     if (token) {
@@ -17,7 +17,7 @@ const ProfileAdminPage = () => {
     }
   }, [token]);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
@@ -27,7 +27,7 @@ const ProfileAdminPage = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     await fetch('/api/profile', {
       method: 'PUT',
@@ -36,12 +36,16 @@ const ProfileAdminPage = () => {
     });
   };
 
-  const handleImageChange = (e) => {
-    setImage(e.target.files[0]);
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setImage(e.target.files[0]);
+    }
   };
 
-  const handleImageUpload = async (e) => {
+  const handleImageUpload = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!image) return;
+    
     const formData = new FormData();
     formData.append('image', image);
 

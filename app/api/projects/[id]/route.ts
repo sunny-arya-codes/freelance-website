@@ -3,11 +3,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Project from '@/models/project';
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   await dbConnect();
 
   try {
-    const { id } = params;
+    const { id } = await context.params;
     const body = await req.json();
     const updatedProject = await Project.findByIdAndUpdate(id, body, { new: true, runValidators: true });
     if (!updatedProject) {
@@ -20,11 +23,14 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  _req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   await dbConnect();
 
   try {
-    const { id } = params;
+    const { id } = await context.params;
     const deletedProject = await Project.findByIdAndDelete(id);
     if (!deletedProject) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });

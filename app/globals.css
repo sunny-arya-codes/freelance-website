@@ -117,6 +117,31 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply min-h-screen bg-background text-foreground antialiased;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.15), transparent 45%),
+      radial-gradient(circle at 80% 0%, rgba(248, 113, 113, 0.12), transparent 40%),
+      radial-gradient(circle at 0% 70%, rgba(94, 234, 212, 0.1), transparent 35%),
+      linear-gradient(120deg, rgba(15, 23, 42, 0.95), rgba(2, 6, 23, 0.95));
+    background-attachment: fixed;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply border-white/10 bg-white/5 backdrop-blur-2xl text-white;
+    box-shadow: 0 25px 80px rgba(2, 6, 23, 0.55);
+  }
+
+  .aurora-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(59, 130, 246, 0.18), transparent 45%),
+      radial-gradient(circle at 70% 20%, rgba(236, 72, 153, 0.15), transparent 50%),
+      radial-gradient(circle at 85% 80%, rgba(14, 165, 233, 0.18), transparent 45%),
+      radial-gradient(circle at 5% 85%, rgba(129, 140, 248, 0.12), transparent 40%);
+    filter: blur(40px);
+    opacity: 0.8;
   }
 }
