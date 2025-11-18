@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Mail, Linkedin, Github, Phone, ExternalLink } from 'lucide-react';
-
+import { Mail, Linkedin, Github, ExternalLink } from 'lucide-react';
 
 interface Profile {
   name: string;
@@ -19,101 +18,49 @@ interface Profile {
 }
 
 const socialLinks = [
-  {
-    name: 'Email',
-    icon: Mail,
-    href: (profile: Profile) => `mailto:${profile.contact.email}`,
-    variant: 'default' as const,
-  },
-  {
-    name: 'LinkedIn',
-    icon: Linkedin,
-    href: (profile: Profile) => profile.contact.linkedin,
-    variant: 'outline' as const,
-  },
-  {
-    name: 'GitHub',
-    icon: Github,
-    href: (profile: Profile) => profile.contact.github,
-    variant: 'outline' as const,
-  },
-  {
-    name: 'Portfolio',
-    icon: ExternalLink,
-    href: (profile: Profile) => profile.contact.portfolio,
-    variant: 'outline' as const,
-  },
+  { name: 'Email', icon: Mail, href: (p: Profile) => `mailto:${p.contact.email}`, variant: 'default' as const },
+  { name: 'LinkedIn', icon: Linkedin, href: (p: Profile) => p.contact.linkedin, variant: 'ghost' as const }, // Changed to ghost for minimal look
+  { name: 'GitHub', icon: Github, href: (p: Profile) => p.contact.github, variant: 'ghost' as const },
+  { name: 'Portfolio', icon: ExternalLink, href: (p: Profile) => p.contact.portfolio, variant: 'ghost' as const },
 ];
 
 const Hero = ({ profile }: { profile: Profile }) => {
   return (
-    <div className="flex flex-col md:flex-row items-center gap-8 p-6 rounded-lg bg-card shadow-sm">
-      <div className="relative w-48 h-48 md:w-64 md:h-64">
+    <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-20 py-10">
+      
+      <div className="relative w-40 h-40 md:w-56 md:h-56 shrink-0">
+        <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 blur-2xl opacity-20 animate-pulse" />
         <Image
           src={profile.high_res_image_url}
           alt={profile.name}
           fill
-          className="rounded-full object-cover border-4 border-primary/20"
-          sizes="(max-width: 768px) 12rem, 16rem"
+          className="rounded-full object-cover border-2 border-white/10 shadow-2xl"
           priority
         />
       </div>
       
-      <div className="flex-1 space-y-4 text-center md:text-left">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{profile.name}</h1>
-          <p className="text-xl text-muted-foreground mt-1">{profile.title}</p>
-          <div className="flex items-center justify-center md:justify-start gap-2 mt-2 text-muted-foreground">
-            <span className="flex items-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="mr-1"
-              >
-                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                <circle cx="12" cy="10" r="3" />
-              </svg>
-              {profile.location}
-            </span>
-            {profile.contact.phone && (
-              <span className="flex items-center">
-                <Phone className="h-4 w-4 mr-1" />
-                {profile.contact.phone}
-              </span>
-            )}
-          </div>
+      <div className="text-center md:text-left max-w-2xl">
+        <div className="inline-block px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-blue-300 mb-4">
+          Available for work
         </div>
-        
-        <p className="text-lg text-muted-foreground leading-relaxed">
+        <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white mb-4">
+          {profile.name}
+        </h1>
+        <p className="text-xl md:text-2xl text-white/60 font-light mb-6">
+          {profile.title}
+        </p>
+        <p className="text-base text-white/50 leading-relaxed mb-8 max-w-lg mx-auto md:mx-0">
           {profile.summary}
         </p>
         
-        <div className="flex flex-wrap justify-center md:justify-start gap-3 pt-2">
-          {socialLinks.map(({ name, icon: Icon, href, variant }) => (
-            <Button
-              key={name}
-              variant={variant}
-              size="sm"
-              className="gap-2"
-              asChild
-            >
-              <a 
-                href={href(profile)} 
-                target={name !== 'Email' ? '_blank' : undefined}
-                rel="noopener noreferrer"
-              >
-                <Icon className="h-4 w-4" />
-                <span>{name}</span>
-              </a>
-            </Button>
-          ))}
+        <div className="flex flex-wrap justify-center md:justify-start gap-4">
+           {/* Social buttons - kept simple */}
+           <Button variant="outline" className="rounded-full bg-white/5 border-white/10 hover:bg-white/10 text-white" asChild>
+             <a href={profile.contact.github} target="_blank"><Github className="w-4 h-4 mr-2"/> GitHub</a>
+           </Button>
+           <Button variant="outline" className="rounded-full bg-white/5 border-white/10 hover:bg-white/10 text-white" asChild>
+             <a href={profile.contact.linkedin} target="_blank"><Linkedin className="w-4 h-4 mr-2"/> LinkedIn</a>
+           </Button>
         </div>
       </div>
     </div>

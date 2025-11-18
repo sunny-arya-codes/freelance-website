@@ -1,5 +1,4 @@
-import { ReactNode } from 'react';
-
+import MenuBar from '@/components/MenuBar';
 import Hero from '@/components/Hero';
 import Skills from '@/components/Skills';
 import Experience from '@/components/Experience';
@@ -7,191 +6,171 @@ import Projects from '@/components/Projects';
 import Education from '@/components/Education';
 import Trainings from '@/components/Trainings';
 import Achievements from '@/components/Achievements';
-import ChatWrapper from '@/components/ChatWrapper';
-import { Badge } from '@/components/ui/badge';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import Chat from '@/components/Chat';
+import Dock from '@/components/Dock';
+import FadeIn from '@/components/FadeIn';
+// import { Window } from '@/components/Window'; // Only if you need draggable/resizable windows
+// Example Data (Replace with your actual data fetching)
+const profileData = {
+  name: 'Sunni Kumar',
+  title: 'Full Stack Developer',
+  location: 'Bangalore, India',
+  summary: 'Passionate full-stack developer with a focus on building robust and scalable web applications. Experienced in React, Next.js, Node.js, and various database technologies.',
+  high_res_image_url: '/path/to/your/profile-pic.jpg', // Update this
+  contact: {
+    email: 'sunni@example.com',
+    phone: '+91 98765 43210',
+    linkedin: 'https://linkedin.com/in/sunni',
+    github: 'https://github.com/sunni',
+    portfolio: 'https://sunni-kumar.vercel.app',
+  },
+};
 
-async function getData(endpoint: string) {
-  const baseUrl = process.env.NODE_ENV === 'production'
-    ? process.env.NEXT_PUBLIC_SITE_URL
-    : 'http://localhost:3000';
+const skillsData = [
+  { _id: '1', category: 'Programming Languages', skills: ['JavaScript', 'TypeScript', 'Python', 'Java'] },
+  { _id: '2', category: 'Frameworks & Libraries', skills: ['React', 'Next.js', 'Node.js', 'Express.js', 'Tailwind CSS', 'Shadcn/ui'] },
+  { _id: '3', category: 'Databases', skills: ['MongoDB', 'PostgreSQL', 'MySQL'] },
+  { _id: '4', category: 'Cloud & DevOps', skills: ['AWS', 'Docker', 'Kubernetes'] },
+];
 
-  const res = await fetch(`${baseUrl}/api/${endpoint}`, {
-    cache: 'no-store',
-    headers: {
-      'Content-Type': 'application/json',
-    }
-  });
+const experienceData = [
+  {
+    _id: 'exp1',
+    title: 'Senior Software Engineer',
+    company: 'Tech Solutions Inc.',
+    company_website: 'https://techsolutions.com',
+    location: 'Bangalore, India',
+    start_date: 'Jan 2022',
+    end_date: 'Present',
+    responsibilities: [
+      'Led the development of scalable microservices using Node.js and TypeScript.',
+      'Designed and implemented robust APIs for front-end consumption.',
+      'Mentored junior developers and conducted code reviews.',
+    ],
+    tech_stack: ['Node.js', 'TypeScript', 'React', 'MongoDB', 'AWS', 'Docker'],
+  },
+  {
+    _id: 'exp2',
+    title: 'Software Developer',
+    company: 'Innovate Corp.',
+    company_website: 'https://innovatecorp.com',
+    location: 'Hyderabad, India',
+    start_date: 'Jun 2019',
+    end_date: 'Dec 2021',
+    responsibilities: [
+      'Developed and maintained features for a large-scale e-commerce platform.',
+      'Collaborated with product teams to translate requirements into technical specifications.',
+    ],
+    tech_stack: ['Python', 'Django', 'React', 'PostgreSQL', 'Azure'],
+  },
+];
 
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    console.error(`Failed to fetch ${endpoint} data:`, errorData);
-    throw new Error(`Failed to fetch ${endpoint} data: ${errorData.message || res.statusText}`);
-  }
-  return res.json();
+const projectsData = [
+  {
+    _id: 'proj1',
+    name: 'Portfolio Website',
+    type: 'Personal',
+    repo_url: 'https://github.com/sunni/portfolio',
+    notebook_url: '', // if applicable
+    description: 'A personal portfolio site built with Next.js and Tailwind CSS, showcasing projects and skills.',
+    tech_stack: ['Next.js', 'React', 'Tailwind CSS', 'Framer Motion'],
+  },
+  {
+    _id: 'proj2',
+    name: 'E-commerce API',
+    type: 'Backend',
+    repo_url: 'https://github.com/sunni/ecommerce-api',
+    notebook_url: '',
+    description: 'RESTful API for an e-commerce platform with user authentication, product management, and order processing.',
+    tech_stack: ['Node.js', 'Express', 'MongoDB', 'JWT'],
+  },
+];
+
+const educationData = [
+    { _id: 'edu1', institution: 'University of XYZ', program: 'Master of Science in Computer Science', cgpa: '9.0', start_date: 'Aug 2017', end_date: 'May 2019', location: 'City, Country' },
+    { _id: 'edu2', institution: 'Another University', program: 'Bachelor of Technology in Information Technology', cgpa: '8.5', start_date: 'Aug 2013', end_date: 'May 2017', location: 'Another City, Country' },
+];
+
+const trainingsData = [
+    { _id: 'trn1', name: 'AWS Certified Developer - Associate', provider: 'Amazon Web Services', start_date: 'Jan 2023', end_date: 'Feb 2023', certificate_url: 'https://www.credly.com/badges/aws-dev' },
+    { _id: 'trn2', name: 'Advanced React Patterns', provider: 'Frontend Masters', start_date: 'Mar 2022', end_date: 'Apr 2022', certificate_url: 'https://frontendmasters.com/certificates/react-patterns' },
+];
+
+const achievementsData = [
+    { _id: 'ach1', title: 'Top Performer Award', description: 'Recognized for outstanding contributions to project Alpha.', badge_url: '', certificate_url: '', event: 'Tech Solutions Inc. 2023' },
+    { _id: 'ach2', title: 'Hackathon Winner', description: 'Led a team to victory at the annual innovation hackathon.', badge_url: '', certificate_url: 'https://example.com/hackathon-cert', event: 'Innovate Corp. 2021' },
+];
+
+
+export default function HomePage() {
+  return (
+    <div className="relative text-white min-h-screen overflow-x-hidden">
+      <MenuBar /> 
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-24 space-y-32">
+        
+        <FadeIn>
+          <section id="about-me">
+            <Hero profile={profileData} />
+          </section>
+        </FadeIn>
+
+        <FadeIn>
+          <SectionWrapper id="skills" title="Skills">
+            <Skills skills={skillsData} />
+          </SectionWrapper>
+        </FadeIn>
+
+        <FadeIn>
+          <SectionWrapper id="experience" title="Experience">
+            <Experience experiences={experienceData} />
+          </SectionWrapper>
+        </FadeIn>
+
+        <FadeIn>
+          <SectionWrapper id="projects" title="Projects">
+            <Projects projects={projectsData} />
+          </SectionWrapper>
+        </FadeIn>
+
+        <FadeIn>
+          <SectionWrapper id="education" title="Education">
+            <Education education={educationData} />
+          </SectionWrapper>
+        </FadeIn>
+
+        <FadeIn>
+          <SectionWrapper id="trainings" title="Trainings">
+            <Trainings trainings={trainingsData} />
+          </SectionWrapper>
+        </FadeIn>
+
+        <FadeIn>
+          <SectionWrapper id="achievements" title="Achievements">
+            <Achievements achievements={achievementsData} />
+          </SectionWrapper>
+        </FadeIn>
+
+        <div className="pb-24" /> {/* Spacing for Dock */}
+      </div>
+
+      <Chat /> 
+      <Dock /> 
+    </div>
+  );
 }
 
-type SectionConfig = {
-  id: string;
-  title: string;
-  description: string;
-  accent: string;
-  content: ReactNode;
-  className?: string;
-};
-
-type GlassSectionProps = Omit<SectionConfig, 'content'> & {
-  children: ReactNode;
-};
-
-const GlassSection = ({
-  id,
-  title,
-  description,
-  accent,
-  className,
-  children,
-}: GlassSectionProps) => (
-  <section id={id} className={cn('group', className)}>
-    <Card className="glass-card relative overflow-hidden">
-      <div
-        aria-hidden
-        className={cn(
-          'pointer-events-none absolute inset-0 opacity-60 blur-3xl transition duration-500 group-hover:opacity-80',
-          accent,
-        )}
-      />
-      <CardHeader className="relative z-10 space-y-3">
-        <Badge
-          variant="outline"
-          className="w-fit border-white/20 bg-white/10 text-[0.65rem] uppercase tracking-[0.2em] text-white/80"
-        >
-          {title}
-        </Badge>
-        <CardTitle className="text-2xl text-white">{title}</CardTitle>
-        <CardDescription className="text-base text-slate-200/80">
-          {description}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="relative z-10">
-        {children}
-      </CardContent>
-    </Card>
-  </section>
-);
-
-export default async function Home() {
-  const profile = await getData('profile');
-  const skills = await getData('skills');
-  const experiences = await getData('experience');
-  const projects = await getData('projects');
-  const education = await getData('education');
-  const trainings = await getData('training');
-  const achievements = await getData('achievements');
-
-  const sections: SectionConfig[] = [
-    {
-      id: 'skills',
-      title: 'Skills Matrix',
-      description: 'A curated mix of languages, frameworks, and tools I reach for daily.',
-      accent: 'bg-gradient-to-br from-cyan-400/30 via-blue-500/20 to-transparent',
-      content: <Skills skills={skills} />,
-    },
-    {
-      id: 'experience',
-      title: 'Experience Timeline',
-      description: 'Highlights from roles where I crafted human-centered products.',
-      accent: 'bg-gradient-to-br from-purple-500/30 via-indigo-500/20 to-transparent',
-      content: <Experience experiences={experiences} />,
-    },
-    {
-      id: 'projects',
-      title: 'Project Playbook',
-      description: 'Selected builds that blend thoughtful UX with reliable engineering.',
-      accent: 'bg-gradient-to-br from-rose-500/30 via-orange-500/20 to-transparent',
-      content: <Projects projects={projects} />,
-      className: 'lg:col-span-2',
-    },
-    {
-      id: 'education',
-      title: 'Education',
-      description: 'Academic path and certifications that shaped my rigor.',
-      accent: 'bg-gradient-to-br from-emerald-400/30 via-teal-500/20 to-transparent',
-      content: <Education education={education} />,
-    },
-    {
-      id: 'trainings',
-      title: 'Training & Workshops',
-      description: 'Immersive learning moments keeping my skills future-ready.',
-      accent: 'bg-gradient-to-br from-amber-400/30 via-yellow-500/20 to-transparent',
-      content: <Trainings trainings={trainings} />,
-    },
-    {
-      id: 'achievements',
-      title: 'Milestones & Achievements',
-      description: 'Recognitions that celebrate curiosity, grit, and impact.',
-      accent: 'bg-gradient-to-br from-pink-500/30 via-fuchsia-500/20 to-transparent',
-      content: <Achievements achievements={achievements} />,
-      className: 'lg:col-span-2',
-    },
-  ];
-
+// Enhanced Section Wrapper
+function SectionWrapper({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
-    <div className="relative overflow-hidden">
-      <div className="aurora-grid pointer-events-none" aria-hidden />
-      <div className="liquid-blobs pointer-events-none" aria-hidden />
-      <main className="relative mx-auto flex max-w-6xl flex-col gap-10 px-6 py-16 lg:py-24">
-        <section id="about-me">
-          <Card className="glass-card relative overflow-hidden">
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-0 bg-gradient-to-br from-sky-500/30 via-blue-600/20 to-transparent opacity-80 blur-[140px]"
-            />
-            <CardHeader className="relative z-10 space-y-4">
-              <Badge
-                variant="outline"
-                className="w-fit border-white/20 bg-white/10 text-[0.65rem] uppercase tracking-[0.2em] text-white/80"
-              >
-                About Me
-              </Badge>
-              <CardTitle className="text-3xl text-white md:text-4xl">
-                Building thoughtful products with equal parts empathy and engineering.
-              </CardTitle>
-              <CardDescription className="text-lg text-slate-200/80">
-                A quick snapshot of who I am, how I work, and the values that shape my craft.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="relative z-10">
-              <Hero profile={profile} />
-            </CardContent>
-          </Card>
-        </section>
-
-        <div className="grid gap-8 lg:grid-cols-2">
-          {sections.map(({ content, ...section }) => (
-            <GlassSection key={section.id} {...section}>
-              {content}
-            </GlassSection>
-          ))}
-        </div>
-
-        <GlassSection
-          id="chat"
-          title="AI Pairing"
-          description="Ask questions, explore the work, or request tailored walkthroughs via the integrated assistant."
-          accent="bg-gradient-to-br from-blue-500/30 via-cyan-500/20 to-transparent"
-          className="lg:col-span-2"
-        >
-          <ChatWrapper />
-        </GlassSection>
-      </main>
-    </div>
+    <section id={id} className="relative z-10">
+      <div className="flex items-center gap-4 mb-10">
+        <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
+          {title}
+        </h2>
+        <div className="h-[1px] flex-1 bg-gradient-to-r from-white/20 to-transparent" />
+      </div>
+      {children}
+    </section>
   );
 }
