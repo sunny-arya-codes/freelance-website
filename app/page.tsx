@@ -1,4 +1,4 @@
-import Window from '@/components/Window';
+import { Window } from '@/components/Window';
 import Hero from '@/components/Hero';
 import Skills from '@/components/Skills';
 import Experience from '@/components/Experience';
@@ -6,6 +6,7 @@ import Projects from '@/components/Projects';
 import Education from '@/components/Education';
 import Trainings from '@/components/Trainings';
 import Achievements from '@/components/Achievements';
+import ChatWrapper from '@/components/ChatWrapper';
 
 async function getData(endpoint: string) {
   const baseUrl = process.env.NODE_ENV === 'production'
@@ -74,6 +75,9 @@ export default async function Home() {
           <Achievements achievements={achievements} />
         </Window>
       </div>
+      
+      {/* Chatbot */}
+      <ChatWrapper />
     </div>
   );
 }
