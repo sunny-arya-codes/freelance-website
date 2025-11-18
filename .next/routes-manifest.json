@@ -1,0 +1,273 @@
+{
+  "version": 3,
+  "pages404": true,
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "priority": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/api/achievements/[id]",
+      "regex": "^/api/achievements/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/achievements/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/education/[id]",
+      "regex": "^/api/education/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/education/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/experience/[id]",
+      "regex": "^/api/experience/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/experience/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/projects/[id]",
+      "regex": "^/api/projects/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/projects/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/skills/[id]",
+      "regex": "^/api/skills/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/skills/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/training/[id]",
+      "regex": "^/api/training/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/training/(?<nxtPid>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_global-error",
+      "regex": "^/_global\\-error(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_global\\-error(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/admin",
+      "regex": "^/admin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin(?:/)?$"
+    },
+    {
+      "page": "/admin/achievements",
+      "regex": "^/admin/achievements(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/achievements(?:/)?$"
+    },
+    {
+      "page": "/admin/additional",
+      "regex": "^/admin/additional(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/additional(?:/)?$"
+    },
+    {
+      "page": "/admin/education",
+      "regex": "^/admin/education(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/education(?:/)?$"
+    },
+    {
+      "page": "/admin/experience",
+      "regex": "^/admin/experience(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/experience(?:/)?$"
+    },
+    {
+      "page": "/admin/login",
+      "regex": "^/admin/login(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/login(?:/)?$"
+    },
+    {
+      "page": "/admin/profile",
+      "regex": "^/admin/profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/profile(?:/)?$"
+    },
+    {
+      "page": "/admin/projects",
+      "regex": "^/admin/projects(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/projects(?:/)?$"
+    },
+    {
+      "page": "/admin/skills",
+      "regex": "^/admin/skills(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/skills(?:/)?$"
+    },
+    {
+      "page": "/admin/training",
+      "regex": "^/admin/training(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/training(?:/)?$"
+    },
+    {
+      "page": "/api/achievements",
+      "regex": "^/api/achievements(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/achievements(?:/)?$"
+    },
+    {
+      "page": "/api/achievements/order",
+      "regex": "^/api/achievements/order(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/achievements/order(?:/)?$"
+    },
+    {
+      "page": "/api/additional",
+      "regex": "^/api/additional(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/additional(?:/)?$"
+    },
+    {
+      "page": "/api/admin/login",
+      "regex": "^/api/admin/login(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/login(?:/)?$"
+    },
+    {
+      "page": "/api/chat",
+      "regex": "^/api/chat(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/chat(?:/)?$"
+    },
+    {
+      "page": "/api/education",
+      "regex": "^/api/education(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/education(?:/)?$"
+    },
+    {
+      "page": "/api/education/order",
+      "regex": "^/api/education/order(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/education/order(?:/)?$"
+    },
+    {
+      "page": "/api/experience",
+      "regex": "^/api/experience(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/experience(?:/)?$"
+    },
+    {
+      "page": "/api/experience/order",
+      "regex": "^/api/experience/order(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/experience/order(?:/)?$"
+    },
+    {
+      "page": "/api/profile",
+      "regex": "^/api/profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/profile(?:/)?$"
+    },
+    {
+      "page": "/api/profile/image",
+      "regex": "^/api/profile/image(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/profile/image(?:/)?$"
+    },
+    {
+      "page": "/api/projects",
+      "regex": "^/api/projects(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/projects(?:/)?$"
+    },
+    {
+      "page": "/api/projects/order",
+      "regex": "^/api/projects/order(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/projects/order(?:/)?$"
+    },
+    {
+      "page": "/api/skills",
+      "regex": "^/api/skills(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/skills(?:/)?$"
+    },
+    {
+      "page": "/api/training",
+      "regex": "^/api/training(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/training(?:/)?$"
+    },
+    {
+      "page": "/api/training/order",
+      "regex": "^/api/training/order(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/training/order(?:/)?$"
+    },
+    {
+      "page": "/favicon.ico",
+      "regex": "^/favicon\\.ico(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/favicon\\.ico(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSuffix": ".prefetch.rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments",
+    "clientParamParsing": false,
+    "dynamicRSCPrerender": false
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}
