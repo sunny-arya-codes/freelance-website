@@ -490,7 +490,8 @@ __turbopack_context__.s([
     ()=>POST
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/server.js [app-route] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$google$2f$generative$2d$ai$2f$dist$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@google/generative-ai/dist/index.mjs [app-route] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$openai$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/openai/index.mjs [app-route] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$openai$2f$client$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$export__OpenAI__as__default$3e$__ = __turbopack_context__.i("[project]/node_modules/openai/client.mjs [app-route] (ecmascript) <export OpenAI as default>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/db.ts [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$profile$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/models/profile.ts [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$skill$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/models/skill.ts [app-route] (ecmascript)");
@@ -511,234 +512,233 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$additional$2e$ts__
 ;
 ;
 ;
-const genAI = new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$google$2f$generative$2d$ai$2f$dist$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["GoogleGenerativeAI"](process.env.GEMINI_API_KEY);
+// Initialize OpenAI client
+const client = new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$openai$2f$client$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$export__OpenAI__as__default$3e$__["default"]({
+    baseURL: "https://integrate.api.nvidia.com/v1",
+    apiKey: "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",
+    dangerouslyAllowBrowser: true // Just in case, though this is server-side
+});
+// Ensure we don't accidentally pick up local env vars if they exist
+delete process.env.OPENAI_BASE_URL;
+delete process.env.OPENAI_API_KEY;
 const MAX_RETRIES = 2;
 const INITIAL_DELAY_MS = 1000;
 // Rate limiting configuration
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-const MAX_REQUESTS_PER_WINDOW = 10; // Max 10 requests per minute
-const REQUEST_COOLDOWN_MS = 3000; // 3 seconds between requests
-// In-memory cache for responses (simple implementation)
-const responseCache = new Map();
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-// Track requests per IP
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const MAX_REQUESTS_PER_WINDOW = 10;
+const REQUEST_COOLDOWN_MS = 3000;
+// Track requests
 const requestTracker = new Map();
 let lastRequestTime = 0;
 function getClientIP(req) {
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || req.headers.get('x-real-ip') || 'unknown';
-    console.log(`[DEBUG] Client IP identified: ${ip}`);
-    return ip;
+    return req.headers.get('x-forwarded-for')?.split(',')[0] || req.headers.get('x-real-ip') || 'unknown';
 }
 function isRateLimited(ip) {
     const now = Date.now();
     const requests = requestTracker.get(ip) || [];
-    // Remove old requests outside the window
     const recentRequests = requests.filter((time)=>now - time < RATE_LIMIT_WINDOW_MS);
     if (recentRequests.length >= MAX_REQUESTS_PER_WINDOW) {
         const oldestRequest = Math.min(...recentRequests);
         const retryAfter = Math.ceil((oldestRequest + RATE_LIMIT_WINDOW_MS - now) / 1000);
-        console.log(`[DEBUG] IP ${ip} rate limited: Too many requests. Retry after ${retryAfter}s.`);
         return {
             limited: true,
             retryAfter
         };
     }
-    // Check cooldown between requests
     if (now - lastRequestTime < REQUEST_COOLDOWN_MS) {
         const retryAfter = Math.ceil((lastRequestTime + REQUEST_COOLDOWN_MS - now) / 1000);
-        console.log(`[DEBUG] IP ${ip} rate limited: Cooldown period. Retry after ${retryAfter}s.`);
         return {
             limited: true,
             retryAfter
         };
     }
-    // Update tracker
     recentRequests.push(now);
     requestTracker.set(ip, recentRequests);
     lastRequestTime = now;
-    console.log(`[DEBUG] IP ${ip} not rate limited. Current requests in window: ${recentRequests.length}`);
     return {
         limited: false
     };
 }
-function getCachedResponse(message) {
-    const cached = responseCache.get(message.toLowerCase().trim());
-    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
-        console.log(`[DEBUG] Cache hit for message: "${message.substring(0, 50)}..."`);
-        return cached.response;
-    }
-    if (cached) {
-        responseCache.delete(message.toLowerCase().trim());
-        console.log(`[DEBUG] Cache expired for message: "${message.substring(0, 50)}..."`);
-    } else {
-        console.log(`[DEBUG] Cache miss for message: "${message.substring(0, 50)}..."`);
-    }
-    return null;
-}
-function cacheResponse(message, response) {
-    // Limit cache size to 100 entries
-    if (responseCache.size >= 100) {
-        const firstKey = responseCache.keys().next().value;
-        if (firstKey) {
-            responseCache.delete(firstKey);
-            console.log(`[DEBUG] Cache full, removed oldest entry: "${firstKey.substring(0, 50)}..."`);
-        }
-    }
-    responseCache.set(message.toLowerCase().trim(), {
-        response,
-        timestamp: Date.now()
-    });
-    console.log(`[DEBUG] Response cached for message: "${message.substring(0, 50)}..."`);
-}
-async function delay(ms) {
-    console.log(`[DEBUG] Delaying for ${ms}ms...`);
-    return new Promise((resolve)=>setTimeout(resolve, ms));
-}
 async function getPortfolioData() {
-    console.log('[DEBUG] Connecting to DB and fetching portfolio data...');
     await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"])();
+    // Fetch data using lean() if available for better performance, 
+    // or standard find() if not. We use Promise.all for speed.
     const [profile, skills, experiences, projects, education, trainings, achievements, additional] = await Promise.all([
-        __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$profile$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({}),
-        __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$skill$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({}),
+        __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$profile$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({}).lean().exec().catch(()=>__TURBOPACK__imported__module__$5b$project$5d2f$models$2f$profile$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({})),
+        __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$skill$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({}).lean().exec().catch(()=>__TURBOPACK__imported__module__$5b$project$5d2f$models$2f$skill$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({})),
         __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$experience$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({}).sort({
             order: 1
-        }),
+        }).lean().exec().catch(()=>__TURBOPACK__imported__module__$5b$project$5d2f$models$2f$experience$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({}).sort({
+                order: 1
+            })),
         __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$project$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({}).sort({
             order: 1
-        }),
+        }).lean().exec().catch(()=>__TURBOPACK__imported__module__$5b$project$5d2f$models$2f$project$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({}).sort({
+                order: 1
+            })),
         __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$education$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({}).sort({
             order: 1
-        }),
+        }).lean().exec().catch(()=>__TURBOPACK__imported__module__$5b$project$5d2f$models$2f$education$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({}).sort({
+                order: 1
+            })),
         __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$training$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({}).sort({
             order: 1
-        }),
+        }).lean().exec().catch(()=>__TURBOPACK__imported__module__$5b$project$5d2f$models$2f$training$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({}).sort({
+                order: 1
+            })),
         __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$achievement$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({}).sort({
             order: 1
-        }),
-        __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$additional$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({})
+        }).lean().exec().catch(()=>__TURBOPACK__imported__module__$5b$project$5d2f$models$2f$achievement$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({}).sort({
+                order: 1
+            })),
+        __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$additional$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({}).lean().exec().catch(()=>__TURBOPACK__imported__module__$5b$project$5d2f$models$2f$additional$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({}))
     ]);
+    // Structure data cleanly to minimize token usage
     const data = {
         profile,
-        skills,
-        experiences,
-        projects,
+        skills: skills?.map((s)=>({
+                name: s.name,
+                category: s.category,
+                level: s.level
+            })),
+        experiences: experiences?.map((e)=>({
+                role: e.role,
+                company: e.company,
+                duration: e.duration,
+                description: e.description
+            })),
+        projects: projects?.map((p)=>({
+                title: p.title,
+                description: p.description,
+                techStack: p.techStack
+            })),
         education,
         trainings,
         achievements,
         additional
     };
-    console.log('[DEBUG] Portfolio data fetched successfully.');
     return JSON.stringify(data);
 }
-async function generateContentWithRetry(model, prompt, retries = MAX_RETRIES) {
-    let lastError;
-    console.log(`[DEBUG] Attempting to generate content with prompt (first 100 chars): "${prompt.substring(0, 100)}..."`);
+async function generateContentWithRetry(systemContext, userMessage, retries = MAX_RETRIES) {
     for(let attempt = 0; attempt < retries; attempt++){
         try {
             console.log(`[DEBUG] AI generation attempt ${attempt + 1}/${retries}...`);
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            const text = response.text();
-            console.log(`[DEBUG] AI generation successful on attempt ${attempt + 1}. Response (first 100 chars): "${text.substring(0, 100)}..."`);
+            // CRITICAL FIX: Changed stream: true to stream: false
+            // Your frontend awaits the full JSON response, so streaming internally 
+            // adds complexity and risk of dropped connections without benefit.
+            const completion = await client.chat.completions.create({
+                model: "openai/gpt-oss-120b",
+                messages: [
+                    {
+                        role: "system",
+                        content: systemContext
+                    },
+                    {
+                        role: "user",
+                        content: userMessage
+                    }
+                ],
+                temperature: 0.6,
+                top_p: 1,
+                max_tokens: 4096,
+                stream: false
+            });
+            console.log(completion);
+            // Check for error in response object (if client doesn't throw)
+            if (completion.error) {
+                throw new Error(`API Error: ${completion.error}`);
+            }
+            // Handle response extraction safely
+            if (!completion.choices || completion.choices.length === 0) {
+                throw new Error('Empty response structure from API');
+            }
+            const choice = completion.choices[0];
+            if (!choice || !choice.message) {
+                throw new Error('Empty response structure from API');
+            }
+            // DeepSeek/NVIDIA models sometimes put reasoning in a separate field
+            const message = choice.message;
+            let text = "";
+            // Include reasoning if available (often valuable for this model)
+            if (message.reasoning_content) {
+                text += message.reasoning_content + "\n\n";
+            }
+            if (message.content) {
+                text += message.content;
+            }
+            if (!text) {
+                throw new Error('No content received in response');
+            }
+            console.log(`[DEBUG] AI generation successful. Length: ${text.length}`);
             return text;
         } catch (error) {
-            lastError = error;
-            console.error(`[DEBUG] AI generation attempt ${attempt + 1} failed:`, error);
-            // Check for quota exceeded error
-            if (error.message?.includes('quota') || error.message?.includes('Quota exceeded')) {
-                console.error('[DEBUG] QUOTA_EXCEEDED error detected.');
-                throw new Error('QUOTA_EXCEEDED');
-            }
-            // If it's a 503 error and we have retries left
-            if (error.status === 503 && attempt < retries - 1) {
-                const delayMs = INITIAL_DELAY_MS * Math.pow(2, attempt); // Exponential backoff
-                console.log(`[DEBUG] Attempt ${attempt + 1} failed with 503. Retrying in ${delayMs}ms...`);
-                await delay(delayMs);
-            } else if (attempt < retries - 1) {
-                // Retry for other errors too
-                console.log(`[DEBUG] Attempt ${attempt + 1} failed. Retrying in ${INITIAL_DELAY_MS}ms for other error...`);
-                await delay(INITIAL_DELAY_MS);
+            console.error(`[DEBUG] AI generation attempt ${attempt + 1} failed:`, error.message);
+            if (attempt < retries - 1) {
+                const delayMs = INITIAL_DELAY_MS * Math.pow(2, attempt);
+                await new Promise((resolve)=>setTimeout(resolve, delayMs));
             } else {
-                console.error(`[DEBUG] All ${retries} AI generation attempts failed. Re-throwing error.`);
-                throw error; // Re-throw if not a 503 or no retries left
+                throw error;
             }
         }
     }
-    throw lastError; // If we've exhausted all retries
+    throw new Error("Failed to generate content after retries");
 }
 async function POST(req) {
-    let message = '';
+    let message = "";
     try {
         const body = await req.json();
         message = body.message;
         if (!message || typeof message !== 'string') {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: 'Message is required and must be a string'
+                error: 'Invalid message'
             }, {
                 status: 400
             });
         }
-        // Get client IP for rate limiting
         const clientIP = getClientIP(req);
-        // Check rate limit
-        const rateLimitCheck = isRateLimited(clientIP);
-        if (rateLimitCheck.limited) {
+        const rateLimit = isRateLimited(clientIP);
+        if (rateLimit.limited) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: `Please wait ${rateLimitCheck.retryAfter} seconds before sending another message.`,
-                retryAfter: rateLimitCheck.retryAfter
+                error: `Rate limit exceeded. Retry in ${rateLimit.retryAfter}s.`,
+                retryAfter: rateLimit.retryAfter
             }, {
                 status: 429
             });
         }
-        // Check cache first
-        const cachedResponse = getCachedResponse(message);
-        if (cachedResponse) {
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                reply: cachedResponse,
-                cached: true
-            });
-        }
         const portfolioData = await getPortfolioData();
-        const model = genAI.getGenerativeModel({
-            model: 'gemini-2.5-flash'
-        });
-        const prompt = `Developer: Answer the user's question using ONLY the information provided in Sunni Kumar's portfolio data.
-
-    If the user asks about something not included in the portfolio data, respond by gently guiding them back to topics about Sunni (e.g., "I might not have info on that, but I can tell you more about Sunni if you'd like!").
-
-    Do NOT fabricate information about Sunni; ensure your response is always aligned with the portfolio data.
-
-    Portfolio data:
-    ${portfolioData}
-
-    User question: "${message}"
-
-    Your answer:`;
-        const text = await generateContentWithRetry(model, prompt);
-        // Cache the response
-        cacheResponse(message, text);
+        // Construct clear instructions
+        const systemContext = `You are an AI assistant for Sunni Kumar. Answer questions using ONLY the provided portfolio data.
+    
+    Guidelines:
+    - Be friendly and professional.
+    - If the answer isn't in the data, politely say you don't know but can discuss Sunni's known skills.
+    - Keep answers concise unless asked for details.
+    
+    Portfolio Data:
+    ${portfolioData}`;
+        const text = await generateContentWithRetry(systemContext, message);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             reply: text
         });
     } catch (error) {
-        console.error('Error in chat API:', error);
-        // Handle quota exceeded or rate limits by returning a FALLBACK response
-        // This ensures the user always gets an answer, even if the API is down
-        if (error.message === 'QUOTA_EXCEEDED' || error.message?.includes('quota') || error.status === 429 || error.status === 503) {
-            console.log('Quota/Rate limit hit - serving fallback response');
-            // Import fallback responses dynamically
+        console.error('Chat API Error:', error);
+        // Fallback Logic
+        try {
+            // Safe re-read or default
+            const fallbackMessage = message || "";
             const { getFallbackResponse } = await __turbopack_context__.A("[project]/lib/fallback-responses.ts [app-route] (ecmascript, async loader)");
-            const fallbackReply = getFallbackResponse(message);
+            const fallbackReply = getFallbackResponse(fallbackMessage);
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 reply: `${fallbackReply}\n\n---\n\n*⚡ Quick Response Mode: AI service is currently busy, serving offline data.*`,
                 fallback: true
             });
+        } catch (e) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: 'Service temporarily unavailable.'
+            }, {
+                status: 503
+            });
         }
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            error: 'An error occurred while processing your request. Please try again later.'
-        }, {
-            status: error.status || 500
-        });
     }
 }
 }),

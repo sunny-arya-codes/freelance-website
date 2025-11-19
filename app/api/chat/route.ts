@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { NextRequest } from 'next/server';
+import OpenAI from 'openai';
+
 import dbConnect from '@/lib/db';
 import Profile from '@/models/profile';
 import Skill from '@/models/skill';
@@ -10,257 +11,185 @@ import Training from '@/models/training';
 import Achievement from '@/models/achievement';
 import Additional from '@/models/additional';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-const MAX_RETRIES = 2;
-const INITIAL_DELAY_MS = 1000;
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
-// Rate limiting configuration
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-const MAX_REQUESTS_PER_WINDOW = 10; // Max 10 requests per minute
-const REQUEST_COOLDOWN_MS = 3000; // 3 seconds between requests
+const client = new OpenAI({
+  apiKey: process.env.NVIDIA_API_KEY,
+  baseURL: 'https://integrate.api.nvidia.com/v1',
+});
 
-// In-memory cache for responses (simple implementation)
-const responseCache = new Map<string, { response: string; timestamp: number }>();
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+async function getPortfolioDataSafe() {
+  // Helper: remove heavy fields like base64 images, banners, etc.
+  function stripHeavyFields(obj: any, depth = 0): any {
+    if (obj == null) return obj;
+    if (depth > 4) return obj; // too deep, skip further recursion
 
-// Track requests per IP
-const requestTracker = new Map<string, number[]>();
-let lastRequestTime = 0;
-
-function getClientIP(req: NextRequest): string {
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ||
-    req.headers.get('x-real-ip') ||
-    'unknown';
-  console.log(`[DEBUG] Client IP identified: ${ip}`);
-  return ip;
-}
-
-function isRateLimited(ip: string): { limited: boolean; retryAfter?: number } {
-  const now = Date.now();
-  const requests = requestTracker.get(ip) || [];
-
-  // Remove old requests outside the window
-  const recentRequests = requests.filter(time => now - time < RATE_LIMIT_WINDOW_MS);
-
-  if (recentRequests.length >= MAX_REQUESTS_PER_WINDOW) {
-    const oldestRequest = Math.min(...recentRequests);
-    const retryAfter = Math.ceil((oldestRequest + RATE_LIMIT_WINDOW_MS - now) / 1000);
-    console.log(`[DEBUG] IP ${ip} rate limited: Too many requests. Retry after ${retryAfter}s.`);
-    return { limited: true, retryAfter };
-  }
-
-  // Check cooldown between requests
-  if (now - lastRequestTime < REQUEST_COOLDOWN_MS) {
-    const retryAfter = Math.ceil((lastRequestTime + REQUEST_COOLDOWN_MS - now) / 1000);
-    console.log(`[DEBUG] IP ${ip} rate limited: Cooldown period. Retry after ${retryAfter}s.`);
-    return { limited: true, retryAfter };
-  }
-
-  // Update tracker
-  recentRequests.push(now);
-  requestTracker.set(ip, recentRequests);
-  lastRequestTime = now;
-  console.log(`[DEBUG] IP ${ip} not rate limited. Current requests in window: ${recentRequests.length}`);
-  return { limited: false };
-}
-
-function getCachedResponse(message: string): string | null {
-  const cached = responseCache.get(message.toLowerCase().trim());
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
-    console.log(`[DEBUG] Cache hit for message: "${message.substring(0, 50)}..."`);
-    return cached.response;
-  }
-  if (cached) {
-    responseCache.delete(message.toLowerCase().trim());
-    console.log(`[DEBUG] Cache expired for message: "${message.substring(0, 50)}..."`);
-  } else {
-    console.log(`[DEBUG] Cache miss for message: "${message.substring(0, 50)}..."`);
-  }
-  return null;
-}
-
-function cacheResponse(message: string, response: string) {
-  // Limit cache size to 100 entries
-  if (responseCache.size >= 100) {
-    const firstKey = responseCache.keys().next().value;
-    if (firstKey) {
-      responseCache.delete(firstKey);
-      console.log(`[DEBUG] Cache full, removed oldest entry: "${firstKey.substring(0, 50)}..."`);
+    if (Array.isArray(obj)) {
+      return obj.map((item) => stripHeavyFields(item, depth + 1));
     }
-  }
-  responseCache.set(message.toLowerCase().trim(), {
-    response,
-    timestamp: Date.now()
-  });
-  console.log(`[DEBUG] Response cached for message: "${message.substring(0, 50)}..."`);
-}
 
-async function delay(ms: number) {
-  console.log(`[DEBUG] Delaying for ${ms}ms...`);
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+    if (typeof obj !== 'object') return obj;
 
-async function getPortfolioData() {
-  console.log('[DEBUG] Connecting to DB and fetching portfolio data...');
-  await dbConnect();
-  const [
-    profile,
-    skills,
-    experiences,
-    projects,
-    education,
-    trainings,
-    achievements,
-    additional
-  ] = await Promise.all([
-    Profile.findOne({}),
-    Skill.find({}),
-    Experience.find({}).sort({ order: 1 }),
-    Project.find({}).sort({ order: 1 }),
-    Education.find({}).sort({ order: 1 }),
-    Training.find({}).sort({ order: 1 }),
-    Achievement.find({}).sort({ order: 1 }),
-    Additional.findOne({}),
-  ]);
+    const cleaned: any = {};
+    for (const [key, value] of Object.entries(obj)) {
+      const lowerKey = key.toLowerCase();
 
-  const data = {
-    profile,
-    skills,
-    experiences,
-    projects,
-    education,
-    trainings,
-    achievements,
-    additional,
-  };
-  console.log('[DEBUG] Portfolio data fetched successfully.');
-  return JSON.stringify(data);
-}
-
-async function generateContentWithRetry(model: any, prompt: string, retries = MAX_RETRIES) {
-  let lastError;
-  console.log(`[DEBUG] Attempting to generate content with prompt (first 100 chars): "${prompt.substring(0, 100)}..."`);
-
-  for (let attempt = 0; attempt < retries; attempt++) {
-    try {
-      console.log(`[DEBUG] AI generation attempt ${attempt + 1}/${retries}...`);
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
-      console.log(`[DEBUG] AI generation successful on attempt ${attempt + 1}. Response (first 100 chars): "${text.substring(0, 100)}..."`);
-      return text;
-    } catch (error: any) {
-      lastError = error;
-      console.error(`[DEBUG] AI generation attempt ${attempt + 1} failed:`, error);
-
-      // Check for quota exceeded error
-      if (error.message?.includes('quota') || error.message?.includes('Quota exceeded')) {
-        console.error('[DEBUG] QUOTA_EXCEEDED error detected.');
-        throw new Error('QUOTA_EXCEEDED');
+      if (
+        /image|photo|avatar|banner|logo|icon|picture|thumbnail|base64|dataurl|file|buffer|screenshot/.test(
+          lowerKey
+        )
+      ) {
+        continue;
       }
 
-      // If it's a 503 error and we have retries left
-      if (error.status === 503 && attempt < retries - 1) {
-        const delayMs = INITIAL_DELAY_MS * Math.pow(2, attempt); // Exponential backoff
-        console.log(`[DEBUG] Attempt ${attempt + 1} failed with 503. Retrying in ${delayMs}ms...`);
-        await delay(delayMs);
-      } else if (attempt < retries - 1) {
-        // Retry for other errors too
-        console.log(`[DEBUG] Attempt ${attempt + 1} failed. Retrying in ${INITIAL_DELAY_MS}ms for other error...`);
-        await delay(INITIAL_DELAY_MS);
+      if (typeof value === 'string') {  
+        if (value.length > 3000) continue;
+        cleaned[key] = value;
+      } else if (typeof value === 'object') {
+        const nested = stripHeavyFields(value, depth + 1);
+        if (
+          nested != null &&
+          (typeof nested !== 'object' || Object.keys(nested).length > 0)
+        ) {
+          cleaned[key] = nested;
+        }
       } else {
-        console.error(`[DEBUG] All ${retries} AI generation attempts failed. Re-throwing error.`);
-        throw error; // Re-throw if not a 503 or no retries left
+        cleaned[key] = value;
       }
     }
+
+    return cleaned;
   }
-  throw lastError; // If we've exhausted all retries
+
+  try {
+    await dbConnect();
+
+    const [
+      profile,
+      skills,
+      experiences,
+      projects,
+      education,
+      trainings,
+      achievements,
+      additional,
+    ] = await Promise.all([
+      Profile.findOne({}).lean().exec(),
+      Skill.find({}).lean().exec(),
+      Experience.find({}).sort({ order: 1 }).lean().exec(),
+      Project.find({}).sort({ order: 1 }).lean().exec(),
+      Education.find({}).sort({ order: 1 }).lean().exec(),
+      Training.find({}).sort({ order: 1 }).lean().exec(),
+      Achievement.find({}).sort({ order: 1 }).lean().exec(),
+      Additional.findOne({}).lean().exec(),
+    ]);
+
+    // Raw combined data
+    const rawData = {
+      profile,
+      skills,
+      experiences,
+      projects,
+      education,
+      trainings,
+      achievements,
+      additional,
+    };
+
+    // ⚡ Slim it down (remove images / huge fields)
+    const slimData = stripHeavyFields(rawData);
+
+    return JSON.stringify(slimData);
+  } catch (err) {
+    console.error('RAG portfolio load error:', err);
+    return null; // fallback: RAG off, but chat works
+  }
 }
 
 export async function POST(req: NextRequest) {
-  let message = '';
-
   try {
-    const body = await req.json();
-    message = body.message;
+    const body = await req.json().catch(() => null);
+    const userMessage = (body?.message || '').trim();
 
-    if (!message || typeof message !== 'string') {
-      return NextResponse.json(
-        { error: 'Message is required and must be a string' },
-        { status: 400 }
-      );
+    if (!userMessage) {
+      return new Response('`message` is required', { status: 400 });
     }
 
-    // Get client IP for rate limiting
-    const clientIP = getClientIP(req);
-
-    // Check rate limit
-    const rateLimitCheck = isRateLimited(clientIP);
-    if (rateLimitCheck.limited) {
-      return NextResponse.json(
-        {
-          error: `Please wait ${rateLimitCheck.retryAfter} seconds before sending another message.`,
-          retryAfter: rateLimitCheck.retryAfter
-        },
-        { status: 429 }
-      );
+    if (!process.env.NVIDIA_API_KEY) {
+      console.error('NVIDIA_API_KEY missing');
+      return new Response('Server config error', { status: 500 });
     }
 
-    // Check cache first
-    const cachedResponse = getCachedResponse(message);
-    if (cachedResponse) {
-      return NextResponse.json({ reply: cachedResponse, cached: true });
-    }
+    const encoder = new TextEncoder();
 
-    const portfolioData = await getPortfolioData();
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    // ⬇️ RAG context fetch (but SAFE)
+    const portfolioJson = await getPortfolioDataSafe();
 
-    const prompt = `Answer the user's question using ONLY the information provided in Sunni Kumar's portfolio data.
+    const systemPrompt = portfolioJson
+      ? `You are an AI assistant for Sunny (Sunni Kumar) on his portfolio website.
 
-    If the user asks about something not included in the portfolio data, respond by gently guiding them back to topics about Sunni (e.g., "I might not have info on that, but I can tell you more about Sunni if you'd like!").
+You have access to the following portfolio data in JSON format. 
+Use ONLY this data when answering questions specifically about Sunny: his skills, projects, experience, education, achievements, etc.
 
-    Do NOT fabricate information about Sunni; ensure your response is always aligned with the portfolio data.
+If the user asks something about Sunny and the information is NOT present in this JSON, clearly say you don't know instead of guessing.
 
-    Portfolio data:
-    ${portfolioData}
+You can also answer general tech / programming / AI questions normally.
 
-    User question: "${message}"
+PORTFOLIO_DATA_JSON:
+${portfolioJson}`
+      : `You are an AI assistant for Sunny (Sunni Kumar) on his portfolio website.
 
-    Your answer:`;
+Right now, portfolio data could not be loaded, so:
+- For questions about Sunny's profile / projects / experience, answer politely that the data is temporarily unavailable.
+- For general tech / programming / AI questions, answer normally, clearly and helpfully.`;
+console.log(systemPrompt);
+console.log(userMessage);
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          const completion = await client.chat.completions.create({
+            model: 'openai/gpt-oss-120b', // same as script.js
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userMessage },
+            ],
+            temperature: 0.6,
+            top_p: 1,
+            max_tokens: 2048,
+            stream: true,
+          });
 
-    const text = await generateContentWithRetry(model, prompt);
+          for await (const chunk of completion) {
+            const delta = chunk.choices[0]?.delta;
+            const content = delta?.content ?? '';
 
-    // Cache the response
-    cacheResponse(message, text);
+            if (content) {
+              controller.enqueue(encoder.encode(content));
+            }
+          }
+        } catch (err) {
+          console.error('Chat stream error:', err);
+          controller.enqueue(
+            encoder.encode(
+              '\n\n**Error:** Kuch issue aa gaya AI se baat karte waqt. Thodi der baad phir try karna. 🙏'
+            )
+          );
+        } finally {
+          controller.close();
+        }
+      },
+    });
 
-    return NextResponse.json({ reply: text });
-
-  } catch (error: any) {
-    console.error('Error in chat API:', error);
-
-    // Handle quota exceeded or rate limits by returning a FALLBACK response
-    // This ensures the user always gets an answer, even if the API is down
-    if (
-      error.message === 'QUOTA_EXCEEDED' ||
-      error.message?.includes('quota') ||
-      error.status === 429 ||
-      error.status === 503
-    ) {
-      console.log('Quota/Rate limit hit - serving fallback response');
-
-      // Import fallback responses dynamically
-      const { getFallbackResponse } = await import('@/lib/fallback-responses');
-      const fallbackReply = getFallbackResponse(message);
-
-      return NextResponse.json({
-        reply: `${fallbackReply}\n\n---\n\n*⚡ Quick Response Mode: AI service is currently busy, serving offline data.*`,
-        fallback: true
-      });
-    }
-
-    return NextResponse.json(
-      { error: 'An error occurred while processing your request. Please try again later.' },
-      { status: error.status || 500 }
-    );
+    return new Response(stream, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-cache, no-transform',
+      },
+    });
+  } catch (err) {
+    console.error('Chat API top-level error:', err);
+    return new Response('Internal Server Error', { status: 500 });
   }
 }
