@@ -16,7 +16,7 @@ export const dynamic = 'force-dynamic';
 
 const client = new OpenAI({
   apiKey: process.env.NVIDIA_API_KEY,
-  baseURL: 'https://integrate.api.nvidia.com/v1',
+  baseURL: 'https://integrate.api.nvidia.com/v1', 
 });
 
 async function getPortfolioDataSafe() {
