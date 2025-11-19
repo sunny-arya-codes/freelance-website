@@ -159,7 +159,15 @@ const experienceSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$m
     order: {
         type: Number,
         required: true
+    },
+    image: {
+        type: String
+    },
+    imageType: {
+        type: String
     }
+}, {
+    timestamps: true
 });
 const Experience = __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["models"].Experience || __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].model('Experience', experienceSchema);
 const __TURBOPACK__default__export__ = Experience;
@@ -185,7 +193,14 @@ async function GET() {
         const experiences = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$experience$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({}).sort({
             order: 1
         });
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(experiences);
+        const experiencesWithImages = experiences.map((exp)=>{
+            const obj = exp.toObject();
+            if (obj.image && obj.imageType) {
+                obj.imageUrl = `data:${obj.imageType};base64,${obj.image}`;
+            }
+            return obj;
+        });
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(experiencesWithImages);
     } catch (error) {
         console.error(error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({

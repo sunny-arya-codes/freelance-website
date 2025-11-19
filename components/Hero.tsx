@@ -1,68 +1,86 @@
+'use client';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Mail, Linkedin, Github, ExternalLink } from 'lucide-react';
+import { ArrowRight, Github, Linkedin, Terminal } from 'lucide-react';
+import { GlassCard } from '@/components/ui/GlassCard';
 
 interface Profile {
   name: string;
   title: string;
-  location: string;
   summary: string;
-  high_res_image_url: string;
-  contact: {
-    email: string;
-    phone: string;
-    linkedin: string;
-    github: string;
-    portfolio: string;
-  };
+  imageUrl?: string;
+  contact: any;
 }
 
-const socialLinks = [
-  { name: 'Email', icon: Mail, href: (p: Profile) => `mailto:${p.contact.email}`, variant: 'default' as const },
-  { name: 'LinkedIn', icon: Linkedin, href: (p: Profile) => p.contact.linkedin, variant: 'ghost' as const }, // Changed to ghost for minimal look
-  { name: 'GitHub', icon: Github, href: (p: Profile) => p.contact.github, variant: 'ghost' as const },
-  { name: 'Portfolio', icon: ExternalLink, href: (p: Profile) => p.contact.portfolio, variant: 'ghost' as const },
-];
-
 const Hero = ({ profile }: { profile: Profile }) => {
+  const imageUrl = profile?.imageUrl || '/images/default-avatar.png';
+
   return (
-    <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-20 py-10">
-      
-      <div className="relative w-40 h-40 md:w-56 md:h-56 shrink-0">
-        <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 blur-2xl opacity-20 animate-pulse" />
-        <Image
-          src={profile.high_res_image_url}
-          alt={profile.name}
-          fill
-          className="rounded-full object-cover border-2 border-white/10 shadow-2xl"
-          priority
-        />
-      </div>
-      
-      <div className="text-center md:text-left max-w-2xl">
-        <div className="inline-block px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-blue-300 mb-4">
-          Available for work
+    <div className="relative flex flex-col items-center justify-center min-h-[85vh] text-center px-4">
+
+      {/* Ambient Glow behind profile */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 blur-[120px] rounded-full pointer-events-none" />
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8 }}
+        className="relative z-10 mb-8"
+      >
+        <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full p-1 bg-gradient-to-br from-primary/20 to-transparent">
+          <div className="w-full h-full rounded-full overflow-hidden relative bg-muted">
+            <Image
+              src={imageUrl}
+              alt={profile?.name || 'Profile'}
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+          {/* Online Status Indicator */}
+          <div className="absolute bottom-2 right-2 w-4 h-4 bg-green-500 rounded-full border-2 border-background shadow-[0_0_10px_rgba(34,197,94,0.6)]" />
         </div>
-        <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white mb-4">
-          {profile.name}
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="max-w-3xl z-10 space-y-6"
+      >
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono tracking-widest uppercase">
+            System Online
+          </span>
+        </div>
+
+        <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-foreground">
+          Architecting the <br />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-foreground to-primary">
+            Future of Intelligence
+          </span>
         </h1>
-        <p className="text-xl md:text-2xl text-white/60 font-light mb-6">
-          {profile.title}
+
+        <p className="text-lg md:text-xl text-muted-foreground font-light leading-relaxed max-w-2xl mx-auto">
+          Senior Full Stack Engineer & AI Specialist building scalable digital neural networks and high-performance web architectures.
         </p>
-        <p className="text-base text-white/50 leading-relaxed mb-8 max-w-lg mx-auto md:mx-0">
-          {profile.summary}
-        </p>
-        
-        <div className="flex flex-wrap justify-center md:justify-start gap-4">
-           {/* Social buttons - kept simple */}
-           <Button variant="outline" className="rounded-full bg-white/5 border-white/10 hover:bg-white/10 text-white" asChild>
-             <a href={profile.contact.github} target="_blank"><Github className="w-4 h-4 mr-2"/> GitHub</a>
-           </Button>
-           <Button variant="outline" className="rounded-full bg-white/5 border-white/10 hover:bg-white/10 text-white" asChild>
-             <a href={profile.contact.linkedin} target="_blank"><Linkedin className="w-4 h-4 mr-2"/> LinkedIn</a>
-           </Button>
+
+        <div className="flex flex-wrap items-center justify-center gap-4 pt-6">
+          <Button className="h-12 px-8 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium transition-all">
+            View Projects <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+          <Button variant="outline" className="h-12 px-8 rounded-full border-border bg-card/50 text-foreground hover:bg-card backdrop-blur-sm">
+            <Terminal className="w-4 h-4 mr-2" /> Technical Stack
+          </Button>
         </div>
-      </div>
+
+        {/* Minimal Socials Row */}
+        <div className="flex justify-center gap-6 pt-8 opacity-70">
+          <a href={profile.contact.github} className="text-muted-foreground hover:text-foreground transition-colors"><Github className="w-5 h-5" /></a>
+          <a href={profile.contact.linkedin} className="text-muted-foreground hover:text-foreground transition-colors"><Linkedin className="w-5 h-5" /></a>
+        </div>
+      </motion.div>
     </div>
   );
 };

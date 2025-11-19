@@ -8,7 +8,14 @@ export async function GET() {
 
   try {
     const projects = await Project.find({}).sort({ order: 1 });
-    return NextResponse.json(projects);
+    const projectsWithImages = projects.map(project => {
+      const obj = project.toObject();
+      if (obj.image && obj.imageType) {
+        obj.imageUrl = `data:${obj.imageType};base64,${obj.image}`;
+      }
+      return obj;
+    });
+    return NextResponse.json(projectsWithImages);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });

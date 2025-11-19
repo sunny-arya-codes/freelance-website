@@ -6,17 +6,17 @@ const Skills = ({ skills }: { skills: any[] }) => {
       {skills.map((skill) => (
         <div key={skill._id} className="space-y-4">
           <div className="flex items-center gap-2 mb-2">
-             <span className="h-px w-4 bg-white/20"></span>
-             <h3 className="text-sm font-medium text-white/50 uppercase tracking-wider">
-                {skill.category}
-             </h3>
+            <span className="h-px w-4 bg-border"></span>
+            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+              {skill.category}
+            </h3>
           </div>
-          
+
           <div className="flex flex-wrap gap-2.5">
             {skill.skills.map((skillName: string, index: number) => (
-              <div 
+              <div
                 key={index}
-                className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/5 hover:border-white/20 hover:bg-white/10 text-sm text-white/90 transition-all duration-300 cursor-default"
+                className="px-3 py-1.5 rounded-lg bg-muted border border-border hover:border-primary hover:bg-muted/80 text-sm text-foreground transition-all duration-300 cursor-default"
               >
                 {skillName}
               </div>

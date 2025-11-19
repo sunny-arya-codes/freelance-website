@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///Users/sunnyarya/code/sunni-kumar/components/ChatWrapper.tsx"],"sourcesContent":["'use client';\n\nimport dynamic from 'next/dynamic';\n\nconst Chat = dynamic(() => import('@/components/Chat'), { ssr: false });\n\nexport default function ChatWrapper() {\n  return <Chat />;\n}\n"],"names":[],"mappings":";;;;;AAEA;;AAFA;;;AAIA,MAAM,OAAO,IAAA,6KAAO,EAAC;;;;;;IAAqC,KAAK;;KAAzD;AAES,SAAS;IACtB,qBAAO,6LAAC;;;;;AACV;MAFwB"}}]
-}

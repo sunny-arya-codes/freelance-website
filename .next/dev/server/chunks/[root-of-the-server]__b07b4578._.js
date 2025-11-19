@@ -160,10 +160,14 @@ const profileSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mong
         type: String,
         required: true
     },
-    high_res_image_url: {
-        type: String,
-        required: true
+    image: {
+        type: String
+    },
+    imageType: {
+        type: String
     }
+}, {
+    timestamps: true
 });
 const Profile = __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["models"].Profile || __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].model('Profile', profileSchema);
 const __TURBOPACK__default__export__ = Profile;
@@ -239,7 +243,15 @@ const experienceSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$m
     order: {
         type: Number,
         required: true
+    },
+    image: {
+        type: String
+    },
+    imageType: {
+        type: String
     }
+}, {
+    timestamps: true
 });
 const Experience = __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["models"].Experience || __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].model('Experience', experienceSchema);
 const __TURBOPACK__default__export__ = Experience;
@@ -281,7 +293,15 @@ const projectSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mong
     order: {
         type: Number,
         required: true
+    },
+    image: {
+        type: String
+    },
+    imageType: {
+        type: String
     }
+}, {
+    timestamps: true
 });
 const Project = __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["models"].Project || __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].model('Project', projectSchema);
 const __TURBOPACK__default__export__ = Project;
@@ -335,7 +355,15 @@ const educationSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mo
     order: {
         type: Number,
         required: true
+    },
+    image: {
+        type: String
+    },
+    imageType: {
+        type: String
     }
+}, {
+    timestamps: true
 });
 const Education = __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["models"].Education || __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].model('Education', educationSchema);
 const __TURBOPACK__default__export__ = Education;
@@ -372,7 +400,15 @@ const trainingSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mon
     order: {
         type: Number,
         required: true
+    },
+    image: {
+        type: String
+    },
+    imageType: {
+        type: String
     }
+}, {
+    timestamps: true
 });
 const Training = __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["models"].Training || __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].model('Training', trainingSchema);
 const __TURBOPACK__default__export__ = Training;
@@ -407,7 +443,15 @@ const achievementSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$
     order: {
         type: Number,
         required: true
+    },
+    image: {
+        type: String
+    },
+    imageType: {
+        type: String
     }
+}, {
+    timestamps: true
 });
 const Achievement = __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["models"].Achievement || __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].model('Achievement', achievementSchema);
 const __TURBOPACK__default__export__ = Achievement;
@@ -468,12 +512,90 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$additional$2e$ts__
 ;
 ;
 const genAI = new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$google$2f$generative$2d$ai$2f$dist$2f$index$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["GoogleGenerativeAI"](process.env.GEMINI_API_KEY);
-const MAX_RETRIES = 3;
-const INITIAL_DELAY_MS = 1000; // 1 second initial delay
+const MAX_RETRIES = 2;
+const INITIAL_DELAY_MS = 1000;
+// Rate limiting configuration
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const MAX_REQUESTS_PER_WINDOW = 10; // Max 10 requests per minute
+const REQUEST_COOLDOWN_MS = 3000; // 3 seconds between requests
+// In-memory cache for responses (simple implementation)
+const responseCache = new Map();
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+// Track requests per IP
+const requestTracker = new Map();
+let lastRequestTime = 0;
+function getClientIP(req) {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || req.headers.get('x-real-ip') || 'unknown';
+    console.log(`[DEBUG] Client IP identified: ${ip}`);
+    return ip;
+}
+function isRateLimited(ip) {
+    const now = Date.now();
+    const requests = requestTracker.get(ip) || [];
+    // Remove old requests outside the window
+    const recentRequests = requests.filter((time)=>now - time < RATE_LIMIT_WINDOW_MS);
+    if (recentRequests.length >= MAX_REQUESTS_PER_WINDOW) {
+        const oldestRequest = Math.min(...recentRequests);
+        const retryAfter = Math.ceil((oldestRequest + RATE_LIMIT_WINDOW_MS - now) / 1000);
+        console.log(`[DEBUG] IP ${ip} rate limited: Too many requests. Retry after ${retryAfter}s.`);
+        return {
+            limited: true,
+            retryAfter
+        };
+    }
+    // Check cooldown between requests
+    if (now - lastRequestTime < REQUEST_COOLDOWN_MS) {
+        const retryAfter = Math.ceil((lastRequestTime + REQUEST_COOLDOWN_MS - now) / 1000);
+        console.log(`[DEBUG] IP ${ip} rate limited: Cooldown period. Retry after ${retryAfter}s.`);
+        return {
+            limited: true,
+            retryAfter
+        };
+    }
+    // Update tracker
+    recentRequests.push(now);
+    requestTracker.set(ip, recentRequests);
+    lastRequestTime = now;
+    console.log(`[DEBUG] IP ${ip} not rate limited. Current requests in window: ${recentRequests.length}`);
+    return {
+        limited: false
+    };
+}
+function getCachedResponse(message) {
+    const cached = responseCache.get(message.toLowerCase().trim());
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+        console.log(`[DEBUG] Cache hit for message: "${message.substring(0, 50)}..."`);
+        return cached.response;
+    }
+    if (cached) {
+        responseCache.delete(message.toLowerCase().trim());
+        console.log(`[DEBUG] Cache expired for message: "${message.substring(0, 50)}..."`);
+    } else {
+        console.log(`[DEBUG] Cache miss for message: "${message.substring(0, 50)}..."`);
+    }
+    return null;
+}
+function cacheResponse(message, response) {
+    // Limit cache size to 100 entries
+    if (responseCache.size >= 100) {
+        const firstKey = responseCache.keys().next().value;
+        if (firstKey) {
+            responseCache.delete(firstKey);
+            console.log(`[DEBUG] Cache full, removed oldest entry: "${firstKey.substring(0, 50)}..."`);
+        }
+    }
+    responseCache.set(message.toLowerCase().trim(), {
+        response,
+        timestamp: Date.now()
+    });
+    console.log(`[DEBUG] Response cached for message: "${message.substring(0, 50)}..."`);
+}
 async function delay(ms) {
+    console.log(`[DEBUG] Delaying for ${ms}ms...`);
     return new Promise((resolve)=>setTimeout(resolve, ms));
 }
 async function getPortfolioData() {
+    console.log('[DEBUG] Connecting to DB and fetching portfolio data...');
     await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"])();
     const [profile, skills, experiences, projects, education, trainings, achievements, additional] = await Promise.all([
         __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$profile$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({}),
@@ -495,7 +617,7 @@ async function getPortfolioData() {
         }),
         __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$additional$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({})
     ]);
-    return JSON.stringify({
+    const data = {
         profile,
         skills,
         experiences,
@@ -504,23 +626,40 @@ async function getPortfolioData() {
         trainings,
         achievements,
         additional
-    });
+    };
+    console.log('[DEBUG] Portfolio data fetched successfully.');
+    return JSON.stringify(data);
 }
 async function generateContentWithRetry(model, prompt, retries = MAX_RETRIES) {
     let lastError;
+    console.log(`[DEBUG] Attempting to generate content with prompt (first 100 chars): "${prompt.substring(0, 100)}..."`);
     for(let attempt = 0; attempt < retries; attempt++){
         try {
+            console.log(`[DEBUG] AI generation attempt ${attempt + 1}/${retries}...`);
             const result = await model.generateContent(prompt);
             const response = await result.response;
-            return response.text();
+            const text = response.text();
+            console.log(`[DEBUG] AI generation successful on attempt ${attempt + 1}. Response (first 100 chars): "${text.substring(0, 100)}..."`);
+            return text;
         } catch (error) {
             lastError = error;
+            console.error(`[DEBUG] AI generation attempt ${attempt + 1} failed:`, error);
+            // Check for quota exceeded error
+            if (error.message?.includes('quota') || error.message?.includes('Quota exceeded')) {
+                console.error('[DEBUG] QUOTA_EXCEEDED error detected.');
+                throw new Error('QUOTA_EXCEEDED');
+            }
             // If it's a 503 error and we have retries left
             if (error.status === 503 && attempt < retries - 1) {
                 const delayMs = INITIAL_DELAY_MS * Math.pow(2, attempt); // Exponential backoff
-                console.log(`Attempt ${attempt + 1} failed with 503. Retrying in ${delayMs}ms...`);
+                console.log(`[DEBUG] Attempt ${attempt + 1} failed with 503. Retrying in ${delayMs}ms...`);
                 await delay(delayMs);
+            } else if (attempt < retries - 1) {
+                // Retry for other errors too
+                console.log(`[DEBUG] Attempt ${attempt + 1} failed. Retrying in ${INITIAL_DELAY_MS}ms for other error...`);
+                await delay(INITIAL_DELAY_MS);
             } else {
+                console.error(`[DEBUG] All ${retries} AI generation attempts failed. Re-throwing error.`);
                 throw error; // Re-throw if not a 503 or no retries left
             }
         }
@@ -528,8 +667,10 @@ async function generateContentWithRetry(model, prompt, retries = MAX_RETRIES) {
     throw lastError; // If we've exhausted all retries
 }
 async function POST(req) {
+    let message = '';
     try {
-        const { message } = await req.json();
+        const body = await req.json();
+        message = body.message;
         if (!message || typeof message !== 'string') {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: 'Message is required and must be a string'
@@ -537,30 +678,60 @@ async function POST(req) {
                 status: 400
             });
         }
+        // Get client IP for rate limiting
+        const clientIP = getClientIP(req);
+        // Check rate limit
+        const rateLimitCheck = isRateLimited(clientIP);
+        if (rateLimitCheck.limited) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: `Please wait ${rateLimitCheck.retryAfter} seconds before sending another message.`,
+                retryAfter: rateLimitCheck.retryAfter
+            }, {
+                status: 429
+            });
+        }
+        // Check cache first
+        const cachedResponse = getCachedResponse(message);
+        if (cachedResponse) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                reply: cachedResponse,
+                cached: true
+            });
+        }
         const portfolioData = await getPortfolioData();
         const model = genAI.getGenerativeModel({
             model: 'gemini-2.5-flash'
         });
-        const prompt = `You are a helpful AI assistant for Sunni Kumar's portfolio website. Your name is "Sunni's AI".
-    You can only answer questions about Sunni Kumar based on the provided data. If a question is not about Sunni Kumar, or if the answer cannot be found in the provided data, you must respond with "Sorry, I can only answer questions about Sunni Kumar."
+        const prompt = `Developer: Answer the user's question using ONLY the information provided in Sunni Kumar's portfolio data.
 
-    Here is Sunni Kumar's portfolio data:
+    If the user asks about something not included in the portfolio data, respond by gently guiding them back to topics about Sunni (e.g., "I might not have info on that, but I can tell you more about Sunni if you'd like!").
+
+    Do NOT fabricate information about Sunni; ensure your response is always aligned with the portfolio data.
+
+    Portfolio data:
     ${portfolioData}
 
-    User's question: "${message}"
+    User question: "${message}"
 
     Your answer:`;
         const text = await generateContentWithRetry(model, prompt);
+        // Cache the response
+        cacheResponse(message, text);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             reply: text
         });
     } catch (error) {
         console.error('Error in chat API:', error);
-        if (error.status === 503) {
+        // Handle quota exceeded or rate limits by returning a FALLBACK response
+        // This ensures the user always gets an answer, even if the API is down
+        if (error.message === 'QUOTA_EXCEEDED' || error.message?.includes('quota') || error.status === 429 || error.status === 503) {
+            console.log('Quota/Rate limit hit - serving fallback response');
+            // Import fallback responses dynamically
+            const { getFallbackResponse } = await __turbopack_context__.A("[project]/lib/fallback-responses.ts [app-route] (ecmascript, async loader)");
+            const fallbackReply = getFallbackResponse(message);
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: 'The AI service is currently overloaded. Please try again in a moment.'
-            }, {
-                status: 503
+                reply: `${fallbackReply}\n\n---\n\n*⚡ Quick Response Mode: AI service is currently busy, serving offline data.*`,
+                fallback: true
             });
         }
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({

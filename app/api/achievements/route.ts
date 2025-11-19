@@ -8,7 +8,14 @@ export async function GET() {
 
   try {
     const achievements = await Achievement.find({}).sort({ order: 1 });
-    return NextResponse.json(achievements);
+    const achievementsWithImages = achievements.map(achievement => {
+      const obj = achievement.toObject();
+      if (obj.image && obj.imageType) {
+        obj.imageUrl = `data:${obj.imageType};base64,${obj.image}`;
+      }
+      return obj;
+    });
+    return NextResponse.json(achievementsWithImages);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });

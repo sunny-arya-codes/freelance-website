@@ -8,7 +8,14 @@ export async function GET() {
 
   try {
     const experiences = await Experience.find({}).sort({ order: 1 });
-    return NextResponse.json(experiences);
+    const experiencesWithImages = experiences.map(exp => {
+      const obj = exp.toObject();
+      if (obj.image && obj.imageType) {
+        obj.imageUrl = `data:${obj.imageType};base64,${obj.image}`;
+      }
+      return obj;
+    });
+    return NextResponse.json(experiencesWithImages);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });

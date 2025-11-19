@@ -8,7 +8,14 @@ export async function GET() {
 
   try {
     const trainings = await Training.find({}).sort({ order: 1 });
-    return NextResponse.json(trainings);
+    const trainingsWithImages = trainings.map(training => {
+      const obj = training.toObject();
+      if (obj.image && obj.imageType) {
+        obj.imageUrl = `data:${obj.imageType};base64,${obj.image}`;
+      }
+      return obj;
+    });
+    return NextResponse.json(trainingsWithImages);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });

@@ -142,7 +142,15 @@ const achievementSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$
     order: {
         type: Number,
         required: true
+    },
+    image: {
+        type: String
+    },
+    imageType: {
+        type: String
     }
+}, {
+    timestamps: true
 });
 const Achievement = __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["models"].Achievement || __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].model('Achievement', achievementSchema);
 const __TURBOPACK__default__export__ = Achievement;
@@ -168,7 +176,14 @@ async function GET() {
         const achievements = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$achievement$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find({}).sort({
             order: 1
         });
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(achievements);
+        const achievementsWithImages = achievements.map((achievement)=>{
+            const obj = achievement.toObject();
+            if (obj.image && obj.imageType) {
+                obj.imageUrl = `data:${obj.imageType};base64,${obj.image}`;
+            }
+            return obj;
+        });
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(achievementsWithImages);
     } catch (error) {
         console.error(error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({

@@ -8,7 +8,9 @@ const achievementSchema = new Schema({
   certificate_url: { type: String },
   event: { type: String },
   order: { type: Number, required: true },
-});
+  image: { type: String },
+  imageType: { type: String },
+}, { timestamps: true });
 
 const Achievement = models.Achievement || mongoose.model('Achievement', achievementSchema);
 

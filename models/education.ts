@@ -13,7 +13,9 @@ const educationSchema = new Schema({
   year_of_completion: { type: String },
   location: { type: String },
   order: { type: Number, required: true },
-});
+  image: { type: String },
+  imageType: { type: String },
+}, { timestamps: true });
 
 const Education = models.Education || mongoose.model('Education', educationSchema);
 

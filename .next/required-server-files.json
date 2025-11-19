@@ -67,12 +67,17 @@
           "protocol": "https",
           "hostname": "avatars.githubusercontent.com",
           "pathname": "/**"
+        },
+        {
+          "protocol": "https",
+          "hostname": "github.com",
+          "pathname": "/**"
         }
       ],
       "qualities": [
         75
       ],
-      "unoptimized": false
+      "unoptimized": true
     },
     "devIndicators": {
       "position": "bottom-left"
@@ -105,7 +110,7 @@
         "transform": "lodash/{{member}}"
       }
     },
-    "outputFileTracingRoot": "/Users/sunnyarya/code/sunni-kumar",
+    "outputFileTracingRoot": "/home/sunny/code/sunni-kumar",
     "cacheComponents": false,
     "cacheLife": {
       "default": {
@@ -163,7 +168,7 @@
       "proxyPrefetch": "flexible",
       "optimisticClientCache": true,
       "manualClientBasePath": false,
-      "cpus": 9,
+      "cpus": 7,
       "memoryBasedWorkersCount": false,
       "imgOptConcurrency": null,
       "imgOptTimeoutInSeconds": 7,
@@ -295,11 +300,11 @@
     "bundlePagesRouterDependencies": false,
     "configFileName": "next.config.ts",
     "turbopack": {
-      "root": "/Users/sunnyarya/code/sunni-kumar"
+      "root": "/home/sunny/code/sunni-kumar"
     },
     "distDirRoot": ".next"
   },
-  "appDir": "/Users/sunnyarya/code/sunni-kumar",
+  "appDir": "/home/sunny/code/sunni-kumar",
   "relativeAppDir": "",
   "files": [
     ".next/routes-manifest.json",

@@ -11,7 +11,9 @@ const experienceSchema = new Schema({
   responsibilities: [{ type: String, required: true }],
   tech_stack: [{ type: String, required: true }],
   order: { type: Number, required: true },
-});
+  image: { type: String },
+  imageType: { type: String },
+}, { timestamps: true });
 
 const Experience = models.Experience || mongoose.model('Experience', experienceSchema);
 

@@ -8,7 +8,9 @@ const trainingSchema = new Schema({
   end_date: { type: String, required: true },
   certificate_url: { type: String },
   order: { type: Number, required: true },
-});
+  image: { type: String },
+  imageType: { type: String },
+}, { timestamps: true });
 
 const Training = models.Training || mongoose.model('Training', trainingSchema);
 

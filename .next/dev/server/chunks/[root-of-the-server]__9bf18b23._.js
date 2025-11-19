@@ -160,10 +160,14 @@ const profileSchema = new __TURBOPACK__imported__module__$5b$externals$5d2f$mong
         type: String,
         required: true
     },
-    high_res_image_url: {
-        type: String,
-        required: true
+    image: {
+        type: String
+    },
+    imageType: {
+        type: String
     }
+}, {
+    timestamps: true
 });
 const Profile = __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["models"].Profile || __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$29$__["default"].model('Profile', profileSchema);
 const __TURBOPACK__default__export__ = Profile;
@@ -183,74 +187,48 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$profile$2e$ts__$5b
 ;
 ;
 ;
-// Mock profile data to use when database is not available
-const MOCK_PROFILE = {
-    name: "Sunny Kumar",
-    title: "Full Stack Developer",
-    location: "Your Location",
-    contact: {
-        email: "your.email@example.com",
-        phone: "+1234567890",
-        linkedin: "https://linkedin.com/in/yourprofile",
-        github: "https://github.com/yourusername",
-        portfolio: "https://yourportfolio.com"
-    },
-    summary: "A passionate developer with experience in building web applications...",
-    high_res_image_url: "/images/profile.jpg"
-};
 async function GET() {
     try {
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"])();
-        // In development, if using mock connection, return mock data
-        if (("TURBOPACK compile-time value", "development") === 'development' && !process.env.MONGODB_URI) {
-            console.warn('Using mock profile data in development mode');
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(MOCK_PROFILE);
+        const profile = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$profile$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({});
+        if (!profile) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: 'Profile not found. Please create a profile from the admin panel.'
+            }, {
+                status: 404
+            });
         }
-        try {
-            const profile = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$profile$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOne({});
-            if (!profile) {
-                console.log('No profile found in database, using mock data');
-                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(MOCK_PROFILE);
-            }
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(profile);
-        } catch (dbError) {
-            console.error('Database query error:', dbError);
-            // In development, return mock data if database query fails
-            if ("TURBOPACK compile-time truthy", 1) {
-                console.warn('Falling back to mock profile data');
-                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(MOCK_PROFILE);
-            }
-            //TURBOPACK unreachable
-            ;
+        // Convert Base64 image to data URL if exists
+        const profileData = profile.toObject();
+        if (profileData.image && profileData.imageType) {
+            profileData.imageUrl = `data:${profileData.imageType};base64,${profileData.image}`;
         }
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(profileData);
     } catch (error) {
         console.error('Error in GET /api/profile:', error);
-        // In production, only return error if not in development
-        if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
-        ;
-        // In development, return mock data even on error
-        console.warn('Error in development, returning mock data');
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(MOCK_PROFILE);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            error: 'Failed to fetch profile',
+            message: error instanceof Error ? error.message : 'Unknown error'
+        }, {
+            status: 500
+        });
     }
 }
 async function PUT(req) {
     try {
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"])();
         const body = await req.json();
-        // In development with mock connection, just return the updated data
-        if (("TURBOPACK compile-time value", "development") === 'development' && !process.env.MONGODB_URI) {
-            console.warn('Mock update in development mode');
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                ...MOCK_PROFILE,
-                ...body
-            });
-        }
         const updatedProfile = await __TURBOPACK__imported__module__$5b$project$5d2f$models$2f$profile$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].findOneAndUpdate({}, body, {
             new: true,
             upsert: true,
             runValidators: true
         });
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(updatedProfile);
+        // Convert Base64 image to data URL if exists
+        const profileData = updatedProfile.toObject();
+        if (profileData.image && profileData.imageType) {
+            profileData.imageUrl = `data:${profileData.imageType};base64,${profileData.image}`;
+        }
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(profileData);
     } catch (error) {
         console.error('Error updating profile:', error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({

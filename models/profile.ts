@@ -13,8 +13,9 @@ const profileSchema = new Schema({
     portfolio: { type: String, required: true },
   },
   summary: { type: String, required: true },
-  high_res_image_url: { type: String, required: true },
-});
+  image: { type: String }, // Base64 encoded image
+  imageType: { type: String }, // MIME type (e.g., 'image/jpeg', 'image/png')
+}, { timestamps: true });
 
 const Profile = models.Profile || mongoose.model('Profile', profileSchema);
 

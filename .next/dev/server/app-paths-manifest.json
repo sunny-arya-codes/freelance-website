@@ -1,7 +1,4 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/admin/login/page": "app/admin/login/page.js",
-  "/admin/page": "app/admin/page.js",
   "/api/achievements/route": "app/api/achievements/route.js",
   "/api/chat/route": "app/api/chat/route.js",
   "/api/education/route": "app/api/education/route.js",
