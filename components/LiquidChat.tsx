@@ -44,8 +44,8 @@ const MarkdownRenderer = memo(({ content, role }: { content: string; role: 'user
             return (
               <code
                 className={`px-1.5 py-0.5 rounded text-[11px] font-mono border ${role === 'user'
-                    ? 'bg-primary/10 text-primary border-primary/20'
-                    : 'bg-muted text-muted-foreground border-border'
+                  ? 'bg-primary/10 text-primary border-primary/20'
+                  : 'bg-muted text-muted-foreground border-border'
                   }`}
                 {...props}
               >
@@ -179,14 +179,16 @@ export const LiquidChat = () => {
 
   return (
     <>
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-2xl px-4">
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-3xl px-4">
         {/* Chat Window */}
         <AnimatePresence>
           {isOpen && (
             <motion.div
+              layout
               initial={{ opacity: 0, y: 20, scale: 0.95, height: 0 }}
-              animate={{ opacity: 1, y: 0, scale: 1, height: '60vh' }}
+              animate={{ opacity: 1, y: 0, scale: 1, height: '75vh' }}
               exit={{ opacity: 0, y: 20, scale: 0.95, height: 0 }}
+              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
               className="mb-4 w-full bg-background/95 backdrop-blur-xl border border-border rounded-3xl overflow-hidden flex flex-col shadow-2xl ring-1 ring-border"
             >
               {/* Header */}
@@ -218,18 +220,20 @@ export const LiquidChat = () => {
               </div>
 
               {/* Messages */}
-              <div className="flex-1 min-h-[260px] max-h-[360px] overflow-y-auto px-4 py-3 space-y-2 bg-gradient-to-b from-background/80 via-background to-muted/60">
+              <div className="flex-1 min-h-[260px] overflow-y-auto px-4 py-3 space-y-4 bg-gradient-to-b from-background/80 via-background to-muted/60">
                 {messages.map((msg) => {
                   const isUser = msg.role === 'user';
                   const isEmptyAI = msg.role === 'ai' && !msg.text && (isSending || isStreaming);
 
                   return (
-                    <div
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
                       key={msg.id}
                       className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}
                     >
                       <div
-                        className={`max-w-[80%] text-sm rounded-2xl px-4 py-2 shadow-sm ${isUser
+                        className={`max-w-[85%] text-sm rounded-2xl px-5 py-3 shadow-sm ${isUser
                             ? 'bg-primary text-primary-foreground rounded-br-sm'
                             : 'bg-card text-foreground rounded-bl-sm border border-border backdrop-blur-sm'
                           }`}
@@ -243,17 +247,21 @@ export const LiquidChat = () => {
                           <MarkdownRenderer content={msg.text} role={msg.role} />
                         )}
                       </div>
-                    </div>
+                    </motion.div>
                   );
                 })}
 
                 {isStreaming && (
-                  <div className="flex justify-start">
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex justify-start"
+                  >
                     <div className="bg-card border border-border rounded-2xl rounded-bl-sm px-4 py-2 flex items-center gap-2 text-[11px] text-muted-foreground">
                       <Terminal className="w-3.5 h-3.5" />
                       <span>Streaming response...</span>
                     </div>
-                  </div>
+                  </motion.div>
                 )}
 
                 <div ref={messagesEndRef} />
