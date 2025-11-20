@@ -16,7 +16,7 @@ export const dynamic = 'force-dynamic';
 
 const client = new OpenAI({
   apiKey: process.env.NVIDIA_API_KEY,
-  baseURL: 'https://integrate.api.nvidia.com/v1', 
+  baseURL: 'https://integrate.api.nvidia.com/v1',
 });
 
 async function getPortfolioDataSafe() {
@@ -43,7 +43,7 @@ async function getPortfolioDataSafe() {
         continue;
       }
 
-      if (typeof value === 'string') {  
+      if (typeof value === 'string') {
         if (value.length > 3000) continue;
         cleaned[key] = value;
       } else if (typeof value === 'object') {
@@ -143,13 +143,13 @@ ${portfolioJson}`
 Right now, portfolio data could not be loaded, so:
 - For questions about Sunny's profile / projects / experience, answer politely that the data is temporarily unavailable.
 - For general tech / programming / AI questions, answer normally, clearly and helpfully.`;
-console.log(systemPrompt);
-console.log(userMessage);
+    console.log(systemPrompt);
+    console.log(userMessage);
     const stream = new ReadableStream({
       async start(controller) {
         try {
           const completion = await client.chat.completions.create({
-            model: 'openai/gpt-oss-120b', // same as script.js
+            model: 'meta/llama-3.1-70b-instruct', // same as script.js
             messages: [
               { role: 'system', content: systemPrompt },
               { role: 'user', content: userMessage },
