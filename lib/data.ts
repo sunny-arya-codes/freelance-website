@@ -6,7 +6,6 @@ const fetchData = cache(async (endpoint: string) => {
   try {
     const res = await fetch(`${API_BASE_URL}/${endpoint}`, {
       next: { revalidate: 3600 },
-      cache: 'no-store' // Don't cache during build
     });
     if (!res.ok) {
       console.error(`Failed to fetch ${endpoint}: ${res.statusText}`);
