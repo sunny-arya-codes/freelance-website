@@ -1,53 +1,36 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import { Moon, Sun, Laptop } from "lucide-react"
-import { useTheme } from "next-themes"
+import * as React from 'react';
+import { Moon, Sun } from 'lucide-react';
 
 export function ThemeToggle() {
-    const { setTheme, theme } = useTheme()
-    const [mounted, setMounted] = React.useState(false)
+  const [theme, setTheme] = React.useState<'light' | 'dark'>('dark');
 
-    React.useEffect(() => {
-        setMounted(true)
-    }, [])
-
-    if (!mounted) {
-        return null
+  // Simple toggle logic for the preview environment
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    // Toggles a class on the root element for Tailwind dark mode
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
     }
+  };
 
-    return (
-        <div className="flex items-center gap-1 p-1 border rounded-full bg-background/50 backdrop-blur-sm border-border">
-            <button
-                onClick={() => setTheme("light")}
-                className={`p-2 rounded-full transition-all ${theme === "light"
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                    }`}
-                aria-label="Light mode"
-            >
-                <Sun className="w-4 h-4" />
-            </button>
-            <button
-                onClick={() => setTheme("system")}
-                className={`p-2 rounded-full transition-all ${theme === "system"
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                    }`}
-                aria-label="System mode"
-            >
-                <Laptop className="w-4 h-4" />
-            </button>
-            <button
-                onClick={() => setTheme("dark")}
-                className={`p-2 rounded-full transition-all ${theme === "dark"
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                    }`}
-                aria-label="Dark mode"
-            >
-                <Moon className="w-4 h-4" />
-            </button>
-        </div>
-    )
+  return (
+    <button
+      onClick={toggleTheme}
+      className="relative p-2 rounded-full hover:bg-muted transition-colors text-foreground"
+      title="Toggle theme"
+    >
+      {/* Sun Icon (Visible in Light Mode) */}
+      <Sun className={`h-5 w-5 transition-all ${theme === 'dark' ? 'scale-0 rotate-90 hidden' : 'scale-100 rotate-0'}`} />
+      
+      {/* Moon Icon (Visible in Dark Mode) */}
+      <Moon className={`h-5 w-5 transition-all ${theme === 'light' ? 'scale-0 -rotate-90 hidden' : 'scale-100 rotate-0'}`} />
+      
+      <span className="sr-only">Toggle theme</span>
+    </button>
+  );
 }

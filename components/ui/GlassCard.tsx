@@ -1,20 +1,21 @@
 'use client';
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion, HTMLMotionProps } from "framer-motion";
 
-interface GlassCardProps {
+interface GlassCardProps extends HTMLMotionProps<"div"> {
   children: React.ReactNode;
   className?: string;
   hoverEffect?: boolean;
 }
 
-export const GlassCard = ({ children, className, hoverEffect = true }: GlassCardProps) => {
+export const GlassCard = ({ children, className, hoverEffect = true, ...props }: GlassCardProps) => {
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
+      {...props}
       className={cn(
         "relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-2xl shadow-2xl",
         hoverEffect && "transition-all duration-300 hover:bg-white/[0.07] hover:border-white/20 hover:shadow-blue-900/20 hover:-translate-y-1",
@@ -23,7 +24,7 @@ export const GlassCard = ({ children, className, hoverEffect = true }: GlassCard
     >
       {/* Shine effect on top edge */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-      
+
       {children}
     </motion.div>
   );

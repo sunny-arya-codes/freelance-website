@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import FadeIn from "@/components/FadeIn";
+import Footer from "@/components/Footer";
+import { getEducation, getTrainings } from "@/lib/data";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,11 +21,14 @@ export const metadata: Metadata = {
   description: "Premium AI & Software Solutions",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const education = await getEducation();
+  const trainings = await getTrainings();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground selection:bg-primary/30 selection:text-primary`}>
@@ -45,7 +51,9 @@ export default function RootLayout({
           <main className="relative z-10 flex flex-col min-h-screen">
             {children}
           </main>
-
+          <FadeIn delay={0.8}>
+            <Footer education={education} trainings={trainings} />
+          </FadeIn>
         </ThemeProvider>
       </body>
     </html>
