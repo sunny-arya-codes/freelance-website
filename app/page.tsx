@@ -1,77 +1,80 @@
-import { Navbar } from '@/components/Navbar';
-import { LiquidChat } from '@/components/LiquidChat';
-import Hero from '@/components/Hero';
-import WhoIHelp from '@/components/WhoIHelp';
-import FadeIn from '@/components/FadeIn';
-import { getProfile, getSkills, getProjects, getExperience, getEducation, getAchievements, getTrainings } from '@/lib/data';
-import ProblemsSolved from '@/components/ProblemsSolved';
-import AISolutions from '@/components/AISolutions';
-import CaseStudies from '@/components/CaseStudies';
-import Testimonials from '@/components/Testimonials';
-import Pricing from '@/components/Pricing';
-import WhyMe from '@/components/WhyMe';
+'use client';
 
-export default async function HomePage() {
-  const profileData = await getProfile();
-  const skills = await getSkills();
-  const projects = await getProjects();
-  const experiences = await getExperience();
-  const education = await getEducation();
-  const achievements = await getAchievements();
-  const trainings = await getTrainings();
+import React, { useState } from 'react';
+import { Navigation } from '@/components/elevate-ai/Navigation';
+import { Hero } from '@/components/elevate-ai/Hero';
+import { About } from '@/components/elevate-ai/About';
+import { Services } from '@/components/elevate-ai/Services';
+import { Approach } from '@/components/elevate-ai/Approach';
+import { Scarcity } from '@/components/elevate-ai/Scarcity';
+import { Contact } from '@/components/elevate-ai/Contact';
+import { Footer } from '@/components/elevate-ai/Footer';
+
+export default function App() {
+  const [currentPage, setCurrentPage] = useState('home');
+
+  const navigate = (page: string) => {
+    setCurrentPage(page);
+    window.scrollTo(0, 0);
+  };
 
   return (
-    <div className="relative min-h-screen bg-background text-foreground selection:bg-primary/30 overflow-x-hidden">
-      {/* Global Background Effect */}
-      <div className="aurora-grid fixed inset-0 z-0 pointer-events-none" />
+    <div className="font-sans text-neutral-900 selection:bg-emerald-100 selection:text-emerald-900 bg-white min-h-screen">
 
-      <Navbar />
+      <Navigation currentPage={currentPage} navigate={navigate} />
 
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-40 space-y-32">
+      <main className="pt-0">
+        {currentPage === 'home' && (
+          <>
+            <Hero navigate={navigate} />
+            <About />
+            <Services />
+            <Approach />
+            <Scarcity navigate={navigate} />
+            <Footer navigate={navigate} />
+          </>
+        )}
 
-        <section id="about-me">
-          <Hero profile={profileData} />
-        </section>
+        {currentPage === 'about' && (
+          <>
+            <div className="pt-20">
+              <About />
+              <Scarcity navigate={navigate} />
+              <Footer navigate={navigate} />
+            </div>
+          </>
+        )}
 
-        <FadeIn delay={0.2}>
-          <WhoIHelp />
-        </FadeIn>
+        {currentPage === 'services' && (
+          <>
+            <div className="pt-20">
+              <Services />
+              <Approach />
+              <Contact />
+              <Footer navigate={navigate} />
+            </div>
+          </>
+        )}
 
-        <FadeIn delay={0.2}>
-          <ProblemsSolved />
-        </FadeIn>
+        {currentPage === 'approach' && (
+          <>
+            <div className="pt-20">
+              <Approach />
+              <Scarcity navigate={navigate} />
+              <Footer navigate={navigate} />
+            </div>
+          </>
+        )}
 
-        <section id="ai-solutions">
-          <FadeIn delay={0.3}>
-            <AISolutions />
-          </FadeIn>
-        </section>
-
-        <section id="case-studies">
-          <FadeIn delay={0.3}>
-            <CaseStudies />
-          </FadeIn>
-        </section>
-
-        <FadeIn delay={0.3}>
-          <Testimonials />
-        </FadeIn>
-
-        <section id="pricing">
-          <FadeIn delay={0.3}>
-            <Pricing />
-          </FadeIn>
-        </section>
-
-        <section id="why-me">
-          <FadeIn delay={0.3}>
-            <WhyMe />
-          </FadeIn>
-        </section>
-
-      </div>
-
-      <LiquidChat />
+        {currentPage === 'contact' && (
+          <>
+            <div className="pt-20">
+              <Contact />
+              <Footer navigate={navigate} />
+            </div>
+          </>
+        )}
+      </main>
     </div>
   );
 }
