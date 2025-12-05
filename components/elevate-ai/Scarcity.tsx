@@ -21,7 +21,7 @@ export const Scarcity: React.FC<ScarcityProps> = ({ navigate }) => (
                 <div className="mt-10">
                     <button
                         onClick={() => navigate('contact')}
-                        className="px-8 py-4 bg-neutral-900 text-white rounded-full font-medium hover:bg-neutral-800 transition-all shadow-xl shadow-neutral-200/50 cursor-pointer"
+                        className="px-8 py-4 text-white rounded-full font-medium transition-all duration-500 cursor-pointer bg-gradient-to-r from-neutral-900 via-neutral-800 to-cyan-900 bg-[length:200%_100%] bg-left hover:bg-right shadow-xl hover:shadow-cyan-500/20"
                     >
                         Apply for Consideration
                     </button>

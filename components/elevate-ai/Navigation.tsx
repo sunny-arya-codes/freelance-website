@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
+import Image from 'next/image';
 
 interface NavigationProps {
     currentPage: string;
@@ -42,7 +43,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, navigate })
                         onClick={() => handleNavigate('home')}
                         className="flex items-center gap-2 cursor-pointer z-50"
                     >
-                        <div className="w-6 h-6 bg-neutral-900 rounded-sm"></div>
+                        <Image src="/logo.png" alt="Logo" width={32} height={32} />
                         <span className="font-bold text-xl tracking-tight">ACOMIS</span>
                     </div>
 
@@ -60,7 +61,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, navigate })
                         ))}
                         <button
                             onClick={() => handleNavigate('contact')}
-                            className="px-5 py-2 bg-neutral-900 text-white rounded-full text-sm font-medium hover:bg-neutral-800 transition-all cursor-pointer"
+                            className="px-5 py-2 text-white rounded-full text-sm font-medium transition-all duration-500 cursor-pointer bg-gradient-to-r from-neutral-900 via-neutral-800 to-cyan-900 bg-[length:200%_100%] bg-left hover:bg-right shadow-lg hover:shadow-cyan-500/20"
                         >
                             Application
                         </button>

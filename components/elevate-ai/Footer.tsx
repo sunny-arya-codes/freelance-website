@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Linkedin, Globe } from 'lucide-react';
+import Image from 'next/image';
 
 interface FooterProps {
     navigate: (page: string) => void;
@@ -12,7 +13,7 @@ export const Footer: React.FC<FooterProps> = ({ navigate }) => (
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center md:items-start">
             <div className="mb-8 md:mb-0 text-center md:text-left">
                 <div className="flex items-center justify-center md:justify-start gap-2 mb-4">
-                    <div className="w-6 h-6 bg-neutral-900 rounded-md"></div>
+                    <Image src="/logo.png" alt="Logo" width={32} height={32} />
                     <span className="font-bold text-xl tracking-tight">ACOMIS</span>
                 </div>
                 <p className="text-sm text-neutral-500 max-w-xs leading-relaxed">
