@@ -4,18 +4,29 @@ import React, { useState } from 'react';
 import { Navigation } from '@/components/elevate-ai/Navigation';
 import { Hero } from '@/components/elevate-ai/Hero';
 import { About } from '@/components/elevate-ai/About';
-import { Services } from '@/components/elevate-ai/Services';
-import { Approach } from '@/components/elevate-ai/Approach';
+import { ImpactStats } from '@/components/elevate-ai/ImpactStats';
+import { BeforeAfter } from '@/components/elevate-ai/BeforeAfter';
+import { ServicesGrid } from '@/components/elevate-ai/ServicesGrid';
+import { ProcessFlow } from '@/components/elevate-ai/ProcessFlow';
+import { ClientFunnel } from '@/components/elevate-ai/ClientFunnel';
+import { Testimonials } from '@/components/elevate-ai/Testimonials';
 import { Scarcity } from '@/components/elevate-ai/Scarcity';
 import { Contact } from '@/components/elevate-ai/Contact';
 import { Footer } from '@/components/elevate-ai/Footer';
+import { ScrollToTop } from '@/components/elevate-ai/ScrollToTop';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
 
   const navigate = (page: string) => {
     setCurrentPage(page);
-    window.scrollTo(0, 0);
+    // If it's a section on the home page, scroll to it
+    const element = document.getElementById(page);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.scrollTo(0, 0);
+    }
   };
 
   return (
@@ -26,12 +37,16 @@ export default function App() {
       <main className="pt-0">
         {currentPage === 'home' && (
           <>
-            <Hero navigate={navigate} />
-            <About />
-            <Services />
-            <Approach />
+            <div id="home"><Hero navigate={navigate} /></div>
+            <div id="impact"><ImpactStats /></div>
+            <div id="about"><About /></div>
+            <div id="comparison"><BeforeAfter /></div>
+            <div id="services"><ServicesGrid /></div>
+            <div id="approach"><ProcessFlow /></div>
+            <div id="funnel"><ClientFunnel /></div>
+            <div id="testimonials"><Testimonials /></div>
             <Scarcity navigate={navigate} />
-            <Footer navigate={navigate} />
+            <div id="contact"><Footer navigate={navigate} /></div>
           </>
         )}
 
@@ -39,6 +54,8 @@ export default function App() {
           <>
             <div className="pt-20">
               <About />
+              <ImpactStats />
+              <BeforeAfter />
               <Scarcity navigate={navigate} />
               <Footer navigate={navigate} />
             </div>
@@ -48,8 +65,9 @@ export default function App() {
         {currentPage === 'services' && (
           <>
             <div className="pt-20">
-              <Services />
-              <Approach />
+              <ServicesGrid />
+              <ProcessFlow />
+              <ClientFunnel />
               <Contact />
               <Footer navigate={navigate} />
             </div>
@@ -59,7 +77,8 @@ export default function App() {
         {currentPage === 'approach' && (
           <>
             <div className="pt-20">
-              <Approach />
+              <ProcessFlow />
+              <ClientFunnel />
               <Scarcity navigate={navigate} />
               <Footer navigate={navigate} />
             </div>
@@ -75,6 +94,7 @@ export default function App() {
           </>
         )}
       </main>
+      <ScrollToTop />
     </div>
   );
 }

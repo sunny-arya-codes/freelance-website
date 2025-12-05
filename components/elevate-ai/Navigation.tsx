@@ -43,7 +43,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, navigate })
                         className="flex items-center gap-2 cursor-pointer z-50"
                     >
                         <div className="w-6 h-6 bg-neutral-900 rounded-sm"></div>
-                        <span className="font-bold text-xl tracking-tight">Elevate AI</span>
+                        <span className="font-bold text-xl tracking-tight">ACOMIS</span>
                     </div>
 
                     {/* Desktop Nav */}
@@ -60,7 +60,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentPage, navigate })
                         ))}
                         <button
                             onClick={() => handleNavigate('contact')}
-                            className="px-5 py-2 bg-neutral-900 text-white rounded-full text-sm font-medium hover:bg-neutral-800 transition-all"
+                            className="px-5 py-2 bg-neutral-900 text-white rounded-full text-sm font-medium hover:bg-neutral-800 transition-all cursor-pointer"
                         >
                             Application
                         </button>

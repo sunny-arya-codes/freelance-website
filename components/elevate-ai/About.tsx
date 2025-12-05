@@ -5,7 +5,7 @@ import { Brain, Zap } from 'lucide-react';
 import { Reveal } from './Reveal';
 
 export const About: React.FC = () => (
-    <div className="min-h-screen bg-neutral-50 py-24 px-6">
+    <div className="min-h-screen bg-white py-24 px-6">
         <div className="max-w-4xl mx-auto">
             <Reveal>
                 <h2 className="text-xs font-bold uppercase tracking-widest text-emerald-600 mb-4">The Duality</h2>
@@ -24,7 +24,7 @@ export const About: React.FC = () => (
                         <span className="font-semibold text-neutral-900">We created a third category: Applied AI.</span>
                     </p>
                     <p className="mb-8">
-                        Our DNA is a rare fusion. From <span className="text-neutral-900 font-medium border-b border-neutral-300">IIT Madras</span>, we inherit the mathematical precision to build custom architectures that don&apos;t hallucinate. From <span className="text-neutral-900 font-medium border-b border-neutral-300">Freshmenu</span>, we inherit the scars of high-growth operations—understanding that an algorithm is useless if it doesn&apos;t survive a Friday night demand spike.
+                        Our DNA is a rare fusion. From <span className="text-neutral-900 font-medium border-b border-neutral-300">top-tier research</span>, we inherit the mathematical precision to build custom architectures that don&apos;t hallucinate. From <span className="text-neutral-900 font-medium border-b border-neutral-300">high-growth scale-ups</span>, we inherit the scars of operational reality—understanding that an algorithm is useless if it doesn&apos;t survive a Friday night demand spike.
                     </p>
                 </div>
             </Reveal>
